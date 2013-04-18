@@ -1,0 +1,122 @@
+<!DOCTYPE HTML>
+<html manifest="" lang="en-US">
+<head>
+    <meta charset="UTF-8">
+    <title>BioGene</title>
+    <style type="text/css">
+     html, body {
+            height: 100%;
+        }
+
+		#appLoadingContainer {
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			height: 20px;
+			padding-top: 66px;
+			background: url('biogene.png') no-repeat center center;
+			background-size: 196px 46px;
+			width: 196px;
+			margin-top: -43px;
+			margin-left: -98px;
+			text-align: center;
+		}
+
+        #appLoadingIndicator {
+            position: relative;
+            margin: 0 auto;
+            width: 100px;
+            height: 20px;
+            text-align: center;
+        }
+        
+        #appLoadingBG {
+        	height: 100%;
+        	width: 100%;
+        	background: #3e93bf; /* Old browsers */
+			background: -moz-linear-gradient(top,  #3e93bf 0%, #146c99 100%); /* FF3.6+ */
+			background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#3e93bf), color-stop(100%,#146c99)); /* Chrome,Safari4+ */
+			background: -webkit-linear-gradient(top,  #3e93bf 0%,#146c99 100%); /* Chrome10+,Safari5.1+ */
+			background: -o-linear-gradient(top,  #3e93bf 0%,#146c99 100%); /* Opera 11.10+ */
+			background: -ms-linear-gradient(top,  #3e93bf 0%,#146c99 100%); /* IE10+ */
+			background: linear-gradient(top,  #3e93bf 0%,#146c99 100%); /* W3C */
+        }
+
+        #appLoadingIndicator > div {
+            background-color: #FFFFFF;
+            float: left;
+            height: 20px;
+            margin-left: 11px;
+            width: 20px;
+            -webkit-animation-name: appLoadingIndicator;
+            -webkit-border-radius: 13px;
+            -webkit-animation-duration: 0.8s;
+            -webkit-animation-iteration-count: infinite;
+            -webkit-animation-direction: linear;
+            opacity: 0.3
+        }
+
+        #appLoadingIndicator > :nth-child(1) {
+            -webkit-animation-delay: 0.18s;
+        }
+
+        #appLoadingIndicator > :nth-child(2) {
+            -webkit-animation-delay: 0.42s;
+        }
+
+        #appLoadingIndicator > :nth-child(3) {
+            -webkit-animation-delay: 0.54s;
+        }
+
+        @-webkit-keyframes appLoadingIndicator{
+            0% {
+                opacity: 0.3
+            }
+
+            50% {
+                opacity: 1;
+                background-color:#ffffff
+            }
+
+            100% {
+                opacity:0.3
+            }
+        }
+        
+        /*.loadingText {
+        	font-family: "Helvetica Neue", Helvetica, Arial;
+        	font-size: 22px;
+        	line-height: 30px;
+        	font-weight: 300;
+        	color: #7d7d7d;
+        	display: block;
+        	margin-top: 10px;
+        	text-align: center;
+        }*/
+    </style>
+    <!-- The line below must be kept intact for Sencha Command to build your application -->
+    <script id="microloader" type="text/javascript" src="sdk/microloader/development.js"></script>
+    <script type="text/javascript">
+	  var _gaq = _gaq || [];
+	  _gaq.push(['_setAccount', 'UA-23025851-2']);
+	  _gaq.push(['_trackPageview']);
+
+	  (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	  })();
+</script>
+</head>
+<body>
+    <div id="appLoadingBG">
+		<div id="appLoadingContainer">
+			<div id="appLoadingIndicator">
+				<div></div>
+				<div></div>
+				<div></div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

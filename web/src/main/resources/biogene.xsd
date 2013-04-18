@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+			xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+			xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
+			elementFormDefault="qualified"
+			attributeFormDefault="unqualified"
+			jaxb:extensionBindingPrefixes="xjc"
+			jaxb:version="1.0">
+  <xsd:annotation>
+	<xsd:appinfo>
+	  <jaxb:globalBindings>
+		<xjc:serializable/>
+	  </jaxb:globalBindings>
+	</xsd:appinfo>
+  </xsd:annotation>
+
+  <xsd:complexType name="GeneInfoList">
+	<xsd:sequence>
+	  <xsd:element name="return_code" type = "xsd:string" minOccurs="1" maxOccurs="1">
+		<xsd:annotation>
+		  <xsd:documentation xml:lang="en">
+			Return code for query - success: "SUCCESS", failure: "FAILURE", id_not_found: "ID_NOT_FOUND"
+		  </xsd:documentation>
+		</xsd:annotation>
+	  </xsd:element>
+	  <xsd:element name="count" type="xsd:int" minOccurs="1" maxOccurs="1"/>
+	  <xsd:element name="retMax" type="xsd:int" minOccurs="1" maxOccurs="1"/>
+	  <xsd:element name="gene_info" type="GeneInfo" minOccurs="1" maxOccurs="unbounded"/>
+	</xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="GeneInfo">
+	<xsd:sequence>
+	  <xsd:element name="gene_id" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+	  <xsd:element name="gene_symbol" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+	  <xsd:element name="gene_tag" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+	  <xsd:element name="gene_organism" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+	  <xsd:element name="gene_location" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+	  <xsd:element name="gene_chromosome" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+	  <xsd:element name="gene_description" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+	  <xsd:element name="gene_aliases" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+	  <xsd:element name="gene_designations" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+	  <xsd:element name="gene_summary" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+	  <xsd:element name="gene_mim" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+	  <xsd:element name="gene_rif" type="GeneRIF" minOccurs="0" maxOccurs="unbounded"/>
+	</xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="GeneRIF">
+	<xsd:sequence>
+	  <xsd:element name="rif" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+	  <xsd:element name="pubmed_id" type="xsd:int" minOccurs="1" maxOccurs="1"/>
+	</xsd:sequence>
+  </xsd:complexType>
+
+</xsd:schema>

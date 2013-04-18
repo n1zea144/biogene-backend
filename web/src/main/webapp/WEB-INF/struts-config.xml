@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE struts-config PUBLIC
+ "-//Apache Software Foundation//DTD Struts Configuration 1.1//EN"
+ "http://jakarta.apache.org/struts/dtds/struts-config_1_1.dtd">
+<struts-config>
+    <controller processorClass="org.apache.struts.tiles.TilesRequestProcessor">
+        <set-property property="nocache" value="true"/>
+        <!-- The tempDir property attribute value MUST match the workDir value in the xxx.xml (XXX context file) file or file uploads of over 256K will not work. -->
+        <set-property property="tempDir" value=" (at) TODO_REPLACE_TEMPDIR"/>
+        <set-property property="maxFileSize" value="10M"/>
+    </controller>
+</struts-config>
