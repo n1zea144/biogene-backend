@@ -39,10 +39,13 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 
+import com.google.common.base.Joiner;
+
 import org.mskcc.cbio.biogene.schema.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Vector;
 
 /**
  * Global Cache.
@@ -59,6 +62,11 @@ public class EhCache {
      */
     public static final String BIOGENE_ID_CACHE = "biogene_cache_gene_ids";
     public static final String BIOGENE_INFO_CACHE = "biogene_cache_gene_info";
+    public static final String BIOGENE_UNIPROT_MAPPING_CACHE = "biogene_cache_uniprot_mapping";
+
+	private static CacheManager geneIDsCacheManager;
+	private static CacheManager geneInfoCacheManager;
+	private static CacheManager uniProtMappingCacheManager;
 
     /**
      * Initializes the EhCache with ehcache.xml.
@@ -70,15 +78,19 @@ public class EhCache {
 		if (log.isInfoEnabled()) {
 			log.info("EhCache, initializing cache");
 		}
-        CacheManager manager = CacheManager.getInstance();
+		shutDownCache();
+		geneIDsCacheManager = new CacheManager(EhCache.class.getResourceAsStream("/ehcache-gene-ids.xml"));
+		geneInfoCacheManager = new CacheManager(EhCache.class.getResourceAsStream("/ehcache-gene-info.xml"));
+		uniProtMappingCacheManager = new CacheManager(EhCache.class.getResourceAsStream("/ehcache-uniprot-mapping.xml"));
     }
 
     /**
      * Shuts down EhCache.
      */
     public static void shutDownCache() {
-        CacheManager manager = CacheManager.getInstance();
-        manager.shutdown();
+		if (geneIDsCacheManager != null) geneIDsCacheManager.shutdown();
+		if (geneInfoCacheManager != null) geneInfoCacheManager.shutdown();
+		if (uniProtMappingCacheManager != null) uniProtMappingCacheManager.shutdown();
     }
 
     /**
@@ -90,11 +102,9 @@ public class EhCache {
 		if (log.isInfoEnabled()) {
 			log.info("EhCache, resetting all caches");
 		}
-        CacheManager manager = CacheManager.getInstance();
-        Cache cache = manager.getCache(BIOGENE_ID_CACHE);
-        cache.removeAll();
-		cache = manager.getCache(BIOGENE_INFO_CACHE);
-        cache.removeAll();
+		geneIDsCacheManager.getCache(BIOGENE_ID_CACHE).removeAll();
+		geneInfoCacheManager.getCache(BIOGENE_INFO_CACHE).removeAll();
+		uniProtMappingCacheManager.getCache(BIOGENE_UNIPROT_MAPPING_CACHE).removeAll();
     }
 
 	/**
@@ -109,8 +119,7 @@ public class EhCache {
 		if (log.isInfoEnabled()) {
 			log.info("EhCache, checking " + BIOGENE_ID_CACHE + " cache for key: " + key);
 		}
-		CacheManager manager = CacheManager.getInstance();
-		Cache cache = manager.getCache(BIOGENE_ID_CACHE);
+		Cache cache = geneIDsCacheManager.getCache(BIOGENE_ID_CACHE);
 		Element element = cache.get(key);
 		if (element != null) {
 			if (log.isInfoEnabled()) {
@@ -141,9 +150,7 @@ public class EhCache {
 	 */
 	public static void storeIDInCache(String query, String organism, ArrayList<String> ids) {
 
-		CacheManager manager = CacheManager.getInstance();
-		Cache cache = manager.getCache(BIOGENE_ID_CACHE);
-
+		Cache cache = geneIDsCacheManager.getCache(BIOGENE_ID_CACHE);
 		String key = (organism.length() > 0) ? (query.toLowerCase() + "-" + organism.toLowerCase()) : query;
 		if (log.isInfoEnabled()) {
 			log.info("EhCache, storing object in " + BIOGENE_ID_CACHE + " cache, key: " + key);
@@ -163,14 +170,23 @@ public class EhCache {
 		if (log.isInfoEnabled()) {
 			log.info("EhCache, checking " + BIOGENE_INFO_CACHE + " cache for key: " + geneID);
 		}
-		CacheManager manager = CacheManager.getInstance();
-		Cache cache = manager.getCache(BIOGENE_INFO_CACHE);
+		Cache cache = geneInfoCacheManager.getCache(BIOGENE_INFO_CACHE);
 		Element element = cache.get(geneID);
 		if (element != null) {
 			if (log.isInfoEnabled()) {
 				log.info("--> Hit!");
 			}
-			return (GeneInfo)element.getValue();
+			GeneInfo geneInfo = (GeneInfo)element.getValue();
+			if (geneInfo.getGeneUniprotMapping() == null) {
+				if (log.isInfoEnabled()) log.info("--> Attempting to add UniProtMapping...");
+				// add uniprot mapping to GeneInfo
+				Vector<String> uniProtMapping = checkUniProtMappingCache(geneID);
+				if (uniProtMapping != null) geneInfo.setGeneUniprotMapping(Joiner.on(":").join(uniProtMapping));
+				// update GeneInfo object in cache
+				element = new Element(geneID, geneInfo);
+				cache.put(element);
+			}
+			return geneInfo;
 		}
 		else {
 			return null;
@@ -184,13 +200,40 @@ public class EhCache {
 	 */
 	public static void storeInfoInCache(GeneInfo geneInfo) {
 
-		CacheManager manager = CacheManager.getInstance();
-		Cache cache = manager.getCache(BIOGENE_INFO_CACHE);
-
+		Cache cache = geneInfoCacheManager.getCache(BIOGENE_INFO_CACHE);
 		if (log.isInfoEnabled()) {
 			log.info("EhCache, storing object in " + BIOGENE_INFO_CACHE + " cache, key: " + geneInfo.getGeneId());
 		}
 		Element element = new Element(geneInfo.getGeneId(), geneInfo);
+		cache.put(element);
+	}
+
+	/**
+	 * Checks UniProt cache.
+	 *
+	 * @param geneID String
+	 * @return Vector<String>
+	 */
+	public static Vector<String> checkUniProtMappingCache(String geneID) {
+
+		Cache cache = uniProtMappingCacheManager.getCache(BIOGENE_UNIPROT_MAPPING_CACHE);
+		Element element = cache.get(geneID);
+		return (element != null) ? (Vector<String>)element.getValue() : null;
+	}
+
+	/**
+	 * Stores UniProt mapping in cache.
+	 *
+	 * @param geneID String
+	 * @param uniProtID String
+	 */
+	public static void storeUniProtMappingInCache(String geneID, String uniProtID) {
+
+		Cache cache = uniProtMappingCacheManager.getCache(BIOGENE_UNIPROT_MAPPING_CACHE);
+		Vector<String> uniProtIDs = (cache.isKeyInCache(geneID)) ?
+			uniProtIDs = checkUniProtMappingCache(geneID) : new Vector<String>();
+		if (!uniProtIDs.contains(uniProtID)) uniProtIDs.add(uniProtID);
+		Element element = new Element(geneID, uniProtIDs);
 		cache.put(element);
 	}
 }

@@ -38,6 +38,7 @@ import org.mskcc.cbio.biogene.util.cache.EhCache;
 import org.mskcc.cbio.biogene.util.PubMedAbstract;
 import org.mskcc.cbio.biogene.tool.Console;
 import org.mskcc.cbio.biogene.task.PopulateCacheTask;
+import org.mskcc.cbio.biogene.task.PopulateUniProtMappingCacheTask;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -69,7 +70,7 @@ public class WebService extends HttpServlet {
         System.out.println("Starting up the BioGENE Server...");
 		try {
             System.out.println("Initializing Cache...");
-            EhCache.resetAllCaches();
+			Console.initializeCache();
 		}
 		catch (Exception e) {
 			throw new ServletException(e);
@@ -155,6 +156,12 @@ public class WebService extends HttpServlet {
 		}
 		else if (command.equals("i")) {
 			Console.initializeCache();
+		}
+		else if (command.equals("c")) {
+			Console.clearCache();
+		}
+		else if (command.equals("u")) {
+			Console.populateUniProtCache();
 		}
 		responseOutputStream.print("Processing command:  " + command + "\n");
 		responseOutputStream.flush();

@@ -1,7 +1,12 @@
 # user.home - User's home directory
 # user.dir - User's current working directory
 # java.io.tmpdir - Default temp file path
-cache.path=java.io.tmpdir
+cache.path=
 
 # uniprot mapping
 uniprot.mapping.path=
+
+# following used by sencha app
+global.vars.abstract=
+global.vars.readme=
+global.vars.search=

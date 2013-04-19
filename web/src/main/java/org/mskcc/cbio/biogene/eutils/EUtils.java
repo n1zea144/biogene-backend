@@ -37,11 +37,14 @@ import org.apache.log4j.Logger;
 import javax.servlet.http.HttpServletResponse;
 
 import java.util.List;
+import java.util.Vector;
 import java.util.ArrayList;
 import java.net.URLDecoder;
 
 import org.mskcc.cbio.biogene.schema.*;
 import org.mskcc.cbio.biogene.util.cache.EhCache;
+
+import com.google.common.base.Joiner;
 
 /**
  * Coordinates ESearch and EFetch serivces.
@@ -245,6 +248,8 @@ public class EUtils {
 				if (geneInfo != null) {
 					// add to cache for future (unless organism is "All Organisms")
 					if (!organism.equalsIgnoreCase(EUtils.ALL_ORGANISMS)) {
+						Vector<String> uniProtMapping = EhCache.checkUniProtMappingCache(geneID);
+						if (uniProtMapping != null) geneInfo.setGeneUniprotMapping(Joiner.on(":").join(uniProtMapping));
 						EhCache.storeInfoInCache(geneInfo);
 					}
 					// add object to return

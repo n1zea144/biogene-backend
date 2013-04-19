@@ -1,7 +1,7 @@
 <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		 xsi:noNamespaceSchemaLocation="ehcache.xsd"
 		 updateCheck="false" monitoring="autodetect"
-		 dynamicConfig="true">
+		 dynamicConfig="true" name="gene-ids-cache">
 
     <!-- Sets the path to the directory where cache .data files are created.
 
@@ -14,7 +14,7 @@
          java.io.tmpdir - Default temp file path -->
     <!-- DO NOT MODIFY THE VALUE BELOW.  Rather, modify build.properties, and your change
          will be automatically propogated to here.-->
-    <diskStore path="${cache.path}"/>
+    <diskStore path="${cache.path}/gene-ids-cache"/>
 
     <!--Default Cache configuration. These will applied to caches programmatically created through
         the CacheManager.
@@ -47,7 +47,7 @@
                                          First In First Out (specified as FIFO) and Less Frequently Used
                                          (specified as LFU)
         -->
-
+	<!--
     <defaultCache
         maxElementsInMemory="10000"
         eternal="false"
@@ -57,6 +57,7 @@
         diskPersistent="false"
         diskExpiryThreadIntervalSeconds="120"
         />
+	-->
 
     <!--Predefined caches.  Add your cache configuration settings here.
         If you do not have a configuration for your cache a WARNING will be issued when the
@@ -96,15 +97,6 @@
     <!-- Cache:  long_term_cache. This cache overflows to disk. The disk store is persistent
          between cache and VM restarts. -->
     <cache name="biogene_cache_gene_ids"
-        maxElementsInMemory="666666"
-        eternal="true"
-        overflowToDisk="true"
-        timeToIdleSeconds="0"
-        timeToLiveSeconds="0"
-        diskPersistent="true"
-        diskExpiryThreadIntervalSeconds="120"
-        />
-    <cache name="biogene_cache_gene_info"
         maxElementsInMemory="666666"
         eternal="true"
         overflowToDisk="true"

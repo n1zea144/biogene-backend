@@ -34,6 +34,7 @@ package org.mskcc.cbio.biogene.tool;
 // imports
 import org.mskcc.cbio.biogene.eutils.EUtils;
 import org.mskcc.cbio.biogene.task.PopulateCacheTask;
+import org.mskcc.cbio.biogene.task.PopulateUniProtMappingCacheTask;
 import org.mskcc.cbio.biogene.util.cache.EhCache;
 
 import org.apache.log4j.Logger;
@@ -118,8 +119,17 @@ public class Console {
 		if (log.isDebugEnabled()) {
 			log.debug("Console.intializeCache(), initializing cache...");
 		}
-        EhCache.resetAllCaches();
+		EhCache.initCache();
     }
+
+    /**
+     * Method to initialize cache.
+	 *
+	 * @param resetCache boolean
+     */
+    public static void clearCache() throws Exception {
+		EhCache.resetAllCaches();
+	}
 																							   
 	/**
 	 * Method to populate biogene proxy cache.
@@ -139,6 +149,13 @@ public class Console {
                 task.start();
             }
         }
+	}
+
+	public static void populateUniProtCache() throws Exception {
+		if (log.isDebugEnabled()) {
+			log.debug("Console.populateUniProtCache()...");
+		}
+		(new PopulateUniProtMappingCacheTask()).start();
 	}
 
     /**
@@ -174,5 +191,11 @@ public class Console {
         else if (command.equals("i")) {
 			Console.initializeCache();
         }
+        else if (command.equals("c")) {
+			Console.clearCache();
+        }
+		else if (command.equals("u")) {
+			Console.populateUniProtCache();
+		}
     }
 }

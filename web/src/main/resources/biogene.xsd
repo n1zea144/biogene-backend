@@ -42,6 +42,7 @@
 	  <xsd:element name="gene_designations" type="xsd:string" minOccurs="1" maxOccurs="1"/>
 	  <xsd:element name="gene_summary" type="xsd:string" minOccurs="1" maxOccurs="1"/>
 	  <xsd:element name="gene_mim" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+	  <xsd:element name="gene_uniprot_mapping" type="xsd:string" minOccurs="1" maxOccurs="1"/>
 	  <xsd:element name="gene_rif" type="GeneRIF" minOccurs="0" maxOccurs="unbounded"/>
 	</xsd:sequence>
   </xsd:complexType>
