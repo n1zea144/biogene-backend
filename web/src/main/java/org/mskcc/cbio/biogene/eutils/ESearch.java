@@ -51,15 +51,15 @@ public class ESearch {
 	public static enum SEARCH_MODE {
 
 		// modes
-		PREF("http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=gene&term=alive[prop]+NOT+newentry[title]+AND+SYMBOL[pref]+AND+ORGANISM[orgn]&retstart=RETSTART"),
-		SYMBOL("http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=gene&term=alive[prop]+NOT+newentry[title]+AND+(SYMBOL*[pref]+OR+SYMBOL[sym])+AND+ORGANISM[orgn]&retstart=RETSTART"),
-		FULL_NAME("http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=gene&term=alive[prop]+NOT+newentry[title]+AND+SYMBOL[gene+full+name]+AND+ORGANISM[orgn]&retstart=RETSTART"),
-		SYMBOL_WILDCARD_RIGHT("http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=gene&term=alive[prop]+NOT+newentry[title]+AND+SYMBOL*[sym]+AND+ORGANISM[orgn]&retstart=RETSTART"),
-		SYMBOL_WILDCARD("http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=gene&term=alive[prop]+NOT+newentry[title]+AND+*SYMBOL*[sym]+AND+ORGANISM[orgn]&retstart=RETSTART"),
-		FREE_TEXT("http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=gene&term=alive[prop]+NOT+newentry[title]+AND+FREETEXT[All+Fields]+AND+ORGANISM[orgn]&retstart=RETSTART"),
-		FREE_TEXT_WILDCARD_RIGHT("http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=gene&term=alive[prop]+NOT+newentry[title]+AND+FREETEXT*[All+Fields]+AND+ORGANISM[orgn]&retstart=RETSTART"),
-		FREE_TEXT_WILDCARD("http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=gene&term=alive[prop]+NOT+newentry[title]+AND+*FREETEXT*[All+Fields]+AND+ORGANISM[orgn]&retstart=RETSTART"),
-		FREE_TEXT_OR("http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=gene&term=alive[prop]+NOT+newentry[title]+AND+FREETEXT+AND+ORGANISM[orgn]&retstart=RETSTART");
+		PREF("http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=gene&term=alive[prop]+NOT+newentry[title]+AND+SYMBOL[pref]+AND+ORGANISM[orgn]&retstart=RETSTART&retmax=RETMAX"),
+		SYMBOL("http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=gene&term=alive[prop]+NOT+newentry[title]+AND+(SYMBOL*[pref]+OR+SYMBOL[sym])+AND+ORGANISM[orgn]&retstart=RETSTART&retmax=RETMAX"),
+		FULL_NAME("http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=gene&term=alive[prop]+NOT+newentry[title]+AND+SYMBOL[gene+full+name]+AND+ORGANISM[orgn]&retstart=RETSTART&retmax=RETMAX"),
+		SYMBOL_WILDCARD_RIGHT("http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=gene&term=alive[prop]+NOT+newentry[title]+AND+SYMBOL*[sym]+AND+ORGANISM[orgn]&retstart=RETSTART&retmax=RETMAX"),
+		SYMBOL_WILDCARD("http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=gene&term=alive[prop]+NOT+newentry[title]+AND+*SYMBOL*[sym]+AND+ORGANISM[orgn]&retstart=RETSTART&retmax=RETMAX"),
+		FREE_TEXT("http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=gene&term=alive[prop]+NOT+newentry[title]+AND+FREETEXT[All+Fields]+AND+ORGANISM[orgn]&retstart=RETSTART&retmax=RETMAX"),
+		FREE_TEXT_WILDCARD_RIGHT("http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=gene&term=alive[prop]+NOT+newentry[title]+AND+FREETEXT*[All+Fields]+AND+ORGANISM[orgn]&retstart=RETSTART&retmax=RETMAX"),
+		FREE_TEXT_WILDCARD("http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=gene&term=alive[prop]+NOT+newentry[title]+AND+*FREETEXT*[All+Fields]+AND+ORGANISM[orgn]&retstart=RETSTART&retmax=RETMAX"),
+		FREE_TEXT_OR("http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=gene&term=alive[prop]+NOT+newentry[title]+AND+FREETEXT+AND+ORGANISM[orgn]&retstart=RETSTART&retmax=RETMAX");
 
 		// string ref for readable name
 		private String searchMode;
@@ -73,7 +73,7 @@ public class ESearch {
 
 	// some statics
     private static Logger log = Logger.getLogger(ESearch.class);
-	private static String ADVANCED_SEARCH_URL = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=gene&term=alive[prop]+NOT+newentry[title]+FREETEXT&retstart=RETSTART";
+	private static String ADVANCED_SEARCH_URL = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=gene&term=alive[prop]+NOT+newentry[title]+FREETEXT&retstart=RETSTART&retmax=RETMAX";
 	private static String CACHE_URL = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=gene&term=alive[prop]+NOT+newentry[title]+ORGANISM[orgn]&retstart=RETSTART";
 
     /**
@@ -97,7 +97,7 @@ public class ESearch {
 			// node query is encoded within getSearchModeURL
 			String url = ESearch.getSearchModeURL(searchMode, query);
 			url = url.replace("RETSTART", Integer.toString(retStart));
-			//url = url.replace("RETMAX", Integer.toString(retMax));
+			url = url.replace("RETMAX", Integer.toString(retMax));
 			if (organism.equalsIgnoreCase(EUtils.ALL_ORGANISMS)) {
 				url = url.replace("+AND+ORGANISM[orgn]", "");
 			}
