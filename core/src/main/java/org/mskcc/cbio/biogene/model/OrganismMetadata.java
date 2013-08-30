@@ -24,38 +24,28 @@
  ** along with this library; if not, write to the Free Software Foundation,
  ** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  **/
-package org.mskcc.cbio.biogene.importer.config.internal;
+package org.mskcc.cbio.biogene.model;
 
-// imports
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.util.List;
+import java.util.ArrayList;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Constructor;
-
-public class ClassLoader
+public class OrganismMetadata
 {
-	private static Log LOG = LogFactory.getLog(ClassLoader.class);
+	// bean properties
+	private String name;
+	private List<String> geneIds;
 
-	public static Object getInstance(String className, Object[] args) throws Exception
+    public OrganismMetadata(String[] properties)
 	{
-		if (className == null || className.length() == 0) {
-			throw new IllegalArgumentException("className must not be null");
+		if (properties.length < 1) {
+            throw new IllegalArgumentException("corrupt properties array passed to constructor");
 		}
 
-		if (LOG.isDebugEnabled()) {
-			LOG.debug("getInstance(), className: " + className);
-		}
-
-		try {
-			Class<?> clazz = Class.forName(className);
-			Constructor[] constructors = clazz.getConstructors();
-			// our classes only have the one constructor
-			return constructors[0].newInstance(args);
-		}
-		catch (Exception e) {
-			LOG.error(("Failed to instantiate " + className), e) ;
-			throw e;
-		}
+		this.name = properties[0].trim();
+		this.geneIds = new ArrayList<String>();
 	}
+
+	public String getName() { return name; }
+	public void setGeneIds(List<String> geneIds) { this.geneIds = geneIds; }
+	public List<String> getGeneIds() { return geneIds; }
 }

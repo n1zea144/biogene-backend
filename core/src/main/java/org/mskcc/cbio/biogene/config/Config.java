@@ -1,8 +1,5 @@
 /** Copyright (c) 2013 Memorial Sloan-Kettering Cancer Center.
  **
- ** Code written by: Benjamin Gross
- ** Authors: Benjamin Gross, Chris Sander
- **
  ** This library is free software; you can redistribute it and/or modify it
  ** under the terms of the GNU Lesser General Public License as published
  ** by the Free Software Foundation; either version 2.1 of the License, or
@@ -27,17 +24,13 @@
  ** along with this library; if not, write to the Free Software Foundation,
  ** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  **/
-package org.mskcc.cbio.biogene.importer.internal;
+package org.mskcc.cbio.biogene.config;
 
-import java.io.IOException;
-import org.apache.commons.net.ftp.FTPClient;
-import org.springframework.integration.ftp.session.DefaultFtpSessionFactory;
+import org.mskcc.cbio.biogene.model.*;
+import java.util.List;
 
-public class AdvancedFtpSessionFactory extends DefaultFtpSessionFactory
+public interface Config
 {
-	protected void postProcessClientBeforeConnect(FTPClient ftpClient) throws IOException
-	{
-        // if we don't set this we get: Host attempting data connection xx.xx.xx.xx is not same as server xx.xx.xx.xx
-		ftpClient.setRemoteVerificationEnabled(false);
-	}
+	List<OrganismMetadata> getOrganismMetadata();
+	List<SearchTermMetadata> getSearchTermMetadata();
 }

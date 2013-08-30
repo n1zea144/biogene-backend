@@ -26,11 +26,10 @@
  **/
 package org.mskcc.cbio.biogene.importer.internal;
 
-import org.mskcc.cbio.biogene.importer.Config;
-import org.mskcc.cbio.biogene.importer.model.GeneFileMetadata;
+import org.mskcc.cbio.biogene.config.Config;
+import org.mskcc.cbio.biogene.model.OrganismMetadata;
 
 import org.apache.commons.logging.*;
-import org.apache.commons.io.FileUtils;
 
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.batch.core.StepContribution;
@@ -40,55 +39,34 @@ import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-import java.io.File;
-import java.util.List;
-import java.util.HashMap;
+import java.util.concurrent.LinkedBlockingQueue;
 
-public class GeneDataASN2XMLConverter implements Tasklet
+public class OrganismMetadataFetcher implements Tasklet
 {
-	private static Log logger = LogFactory.getLog(GeneDataFetcher.class);
-	private static final String GENE_DATA_REGEX = "<GENE-DATA-FILE>";
+	private static final Log LOG = LogFactory.getLog(OrganismMetadataFetcher.class);
 
 	@Autowired
-	@Qualifier("geneFileMetadata")
-	private HashMap<GeneFileMetadata,GeneFileMetadata> geneFileMetadata;
-
+	@Qualifier("organismMetadataQueue")
+	private LinkedBlockingQueue<OrganismMetadata> organismMetadataQueue;
 
 	private Config config;
-	private String gene2XmlBin;
-	private File localDirectory;
 
-	public GeneDataASN2XMLConverter(Config config, String gene2XmlBin, String geneDataDestDirectory)
+	public OrganismMetadataFetcher(Config config)
 	{
 		this.config = config;
-		this.gene2XmlBin = gene2XmlBin;
-		localDirectory = new File(geneDataDestDirectory);
-		logger.info("local directory: " + localDirectory);
 	}
 
 	public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception
     {
-		for (GeneFileMetadata metadata : geneFileMetadata.keySet()) {
-			if (metadata.importFile()) {
-				File geneDataFile = FileUtils.getFile(localDirectory, metadata.getFilename());
-				logger.info("converting gene data: " + geneDataFile.getCanonicalPath());
-				String convertCommand = getConvertCommand(geneDataFile);
-				logger.info("executing: " + convertCommand);
-				execute(convertCommand);
-			}
-		}
+		getOrganismMetadata();
         return RepeatStatus.FINISHED;
     }
 
-	private String getConvertCommand(File geneDataFile) throws Exception
+	private void getOrganismMetadata() throws Exception
 	{
-		return gene2XmlBin.replaceAll(GENE_DATA_REGEX, geneDataFile.getCanonicalPath());
-	}
-
-	private void execute(String command) throws Exception
-	{
-		Process process = Runtime.getRuntime().exec(command);
-		process.waitFor();
-		if (process.exitValue() != 0) throw new RuntimeException();
+		organismMetadataQueue.clear();
+		for (OrganismMetadata metadata : config.getOrganismMetadata()) {
+			organismMetadataQueue.put(metadata);
+		}
 	}
 }

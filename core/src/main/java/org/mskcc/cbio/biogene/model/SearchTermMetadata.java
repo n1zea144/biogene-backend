@@ -24,38 +24,30 @@
  ** along with this library; if not, write to the Free Software Foundation,
  ** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  **/
-package org.mskcc.cbio.biogene.importer.model;
+package org.mskcc.cbio.biogene.model;
 
-public class GeneFileMetadata
+public class SearchTermMetadata
 {
+	public static final int ALL_GENE_IDS_INDEX = 0;
 
 	// bean properties
-	private String path;
-	private String filename;
-	private Boolean fetchFile;
-	private Boolean importFile;
+	private String retMax;
+	private String searchDb;
+	private String searchTerm;
 
-    /**
-     * Create a CaseIDFilterMetadata instance with properties in given array.
-	 * Its assumed order of properties is that from google worksheet.
-     *
-	 * @param properties String[]
-     */
-    public GeneFileMetadata(String[] properties)
+    public SearchTermMetadata(String[] properties)
 	{
 
-		if (properties.length < 4) {
+		if (properties.length < 3) {
             throw new IllegalArgumentException("corrupt properties array passed to constructor");
 		}
 
-		this.path = properties[0].trim();
-		this.filename = properties[1].trim();
-		this.fetchFile = new Boolean(properties[2].trim());
-		this.importFile = new Boolean(properties[3].trim());
+		this.searchTerm = properties[0].trim();
+		this.searchDb = properties[1].trim();
+		this.retMax = properties[2].trim();
 	}
 
-	public String getPath() { return path; }
-	public String getFilename() { return filename; }
-	public Boolean fetchFile() { return fetchFile; }
-	public Boolean importFile() { return importFile; }
+	public String getRetMax() { return retMax; }
+	public String getSearchDb() { return searchDb; }
+	public String getSearchTerm() { return searchTerm; }
 }

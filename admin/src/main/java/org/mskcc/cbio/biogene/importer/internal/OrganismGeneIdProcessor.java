@@ -24,12 +24,37 @@
  ** along with this library; if not, write to the Free Software Foundation,
  ** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  **/
-package org.mskcc.cbio.biogene.importer;
+package org.mskcc.cbio.biogene.importer.internal;
 
-import org.mskcc.cbio.biogene.importer.model.GeneFileMetadata;
-import java.util.Collection;
+import org.mskcc.cbio.biogene.eutils.EUtils;
+import org.mskcc.cbio.biogene.model.OrganismMetadata;
 
-public interface Config
+import org.apache.commons.logging.*;
+
+import org.springframework.stereotype.Component;
+import org.springframework.batch.item.ItemProcessor;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+
+import java.util.concurrent.LinkedBlockingQueue;
+
+@Component("organismGeneIdsProcessor")
+public class OrganismGeneIdProcessor implements ItemProcessor<OrganismMetadata, OrganismMetadata>
 {
-	Collection<GeneFileMetadata> getGeneFileMetadata();
+	private static final Log LOG = LogFactory.getLog(OrganismGeneIdProcessor.class);
+
+	@Autowired
+	@Qualifier("organismMetadataQueue")
+	private LinkedBlockingQueue<OrganismMetadata> organismMetadataQueue;
+
+	@Autowired
+	private EUtils eutils;
+
+	@Override
+	public OrganismMetadata process(OrganismMetadata organismMetadata) throws Exception
+    {
+		System.out.println("here");
+		return organismMetadata;
+    }
 }

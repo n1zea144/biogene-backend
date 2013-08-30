@@ -24,10 +24,10 @@
  ** along with this library; if not, write to the Free Software Foundation,
  ** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  **/
-package org.mskcc.cbio.biogene.importer.config.internal;
+package org.mskcc.cbio.biogene.config.internal;
 
-import org.mskcc.cbio.biogene.importer.Config;
-import org.mskcc.cbio.biogene.importer.model.GeneFileMetadata;
+import org.mskcc.cbio.biogene.model.*;
+import org.mskcc.cbio.biogene.config.Config;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -55,48 +55,61 @@ import java.lang.reflect.Method;
  */
 class GDataImpl implements Config {
 
-	private static Log LOG = LogFactory.getLog(GDataImpl.class);
+	private static final Log LOG = LogFactory.getLog(GDataImpl.class);
 
 	private String gdataUser;
 	private String gdataPassword;
 	private SpreadsheetService spreadsheetService;
 
-	ArrayList<ArrayList<String>> geneFilesMatrix;
+	ArrayList<ArrayList<String>> organismsMatrix;
+	ArrayList<ArrayList<String>> searchTermsMatrix;
 
 	private String gdataSpreadsheet;
-	private String geneFilesWorksheet;
+	private String organismsWorksheet;
+	private String searchTermsWorksheet;
 
 	public GDataImpl(String gdataUser, String gdataPassword,
 					 SpreadsheetService spreadsheetService,String gdataSpreadsheet,
-					 String geneFilesWorksheet)
+					 String organismsWorksheet, String searchTermsWorksheet)
 	{
 		this.gdataUser = gdataUser;
 		this.gdataPassword = gdataPassword;
 		this.spreadsheetService = spreadsheetService;
 		this.gdataSpreadsheet = gdataSpreadsheet;
-		this.geneFilesWorksheet = geneFilesWorksheet;
+		this.organismsWorksheet = organismsWorksheet;
+		this.searchTermsWorksheet = searchTermsWorksheet;
 	}
 
 	@Override
-	public Collection<GeneFileMetadata> getGeneFileMetadata()
+	public List<OrganismMetadata> getOrganismMetadata()
 	{
-
-		if (geneFilesMatrix == null) {
-			geneFilesMatrix = getWorksheetData(gdataSpreadsheet, geneFilesWorksheet);
+		if (organismsMatrix == null) {
+			organismsMatrix = getWorksheetData(gdataSpreadsheet, organismsWorksheet);
 		}
-
-		Collection<GeneFileMetadata> geneFileMetadata = 
-			(Collection<GeneFileMetadata>)getMetadataCollection(geneFilesMatrix,
-																"org.mskcc.cbio.biogene.importer.model.GeneFileMetadata");
-		return geneFileMetadata;
+		List<OrganismMetadata> organismMetadata = 
+			(List<OrganismMetadata>)getMetadataList(organismsMatrix,
+													"org.mskcc.cbio.biogene.model.OrganismMetadata");
+		return organismMetadata;
 	}
 
-	private Collection<?> getMetadataCollection(ArrayList<ArrayList<String>> metadataMatrix, String className)
+	@Override
+	public List<SearchTermMetadata> getSearchTermMetadata()
 	{
-		Collection<Object> toReturn = new ArrayList<Object>();
+		if (searchTermsMatrix == null) {
+			searchTermsMatrix = getWorksheetData(gdataSpreadsheet, searchTermsWorksheet);
+		}
+		List<SearchTermMetadata> searchTermMetadata = 
+			(List<SearchTermMetadata>)getMetadataList(searchTermsMatrix,
+													  "org.mskcc.cbio.biogene.model.SearchTermMetadata");
+		return searchTermMetadata;
+	}
+
+	private List<?> getMetadataList(ArrayList<ArrayList<String>> metadataMatrix, String className)
+	{
+		List<Object> toReturn = new ArrayList<Object>();
 
 		if (LOG.isInfoEnabled()) {
-			LOG.info("getMetadataCollection(): " + className);
+			LOG.info("getMetadataList(): " + className);
 		}
 
 		// we start at one, because row 0 is the column headers

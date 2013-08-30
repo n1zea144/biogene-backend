@@ -7,7 +7,9 @@
 							http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
 							http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
+  <import resource="classpath:coreApplicationContext.xml" />
   <import resource="classpath:adminApplicationContext.xml" />
+  <context:component-scan base-package="org.mskcc.cbio.biogene.importer.internal" />
 
   <bean id="geneDataStep" class="org.springframework.batch.core.step.item.SimpleStepFactoryBean" abstract="true">
 	<property name="transactionManager" ref="transactionManager" />
@@ -16,51 +18,33 @@
   </bean>
 
   <batch:job id="geneDataImporterJob">
-	<batch:step id="geneDataFetchStep" parent="geneDataStep" next="geneDataConversionStep">
-	  <batch:tasklet ref="geneDataFetcher"/>
+	<batch:step id="organismMetadataFetchStep" parent="geneDataStep" next="organismGeneIdsFetchStep">
+	  <batch:tasklet ref="organismMetadataFetcher"/>
 	</batch:step>
-	<batch:step id="geneDataConversionStep" parent="geneDataFetchStep">
-	  <batch:tasklet ref="geneDataASN2XMLConverter"/>
+	<batch:step id="organismGeneIdsFetchStep" parent="geneDataStep">
+	  <batch:tasklet>
+		<batch:chunk reader="organismGeneIdReader" processor="organismGeneIdsProcessor"/>
+	  </batch:tasklet>
 	</batch:step>
   </batch:job>
 
-  <bean name="geneDataFetcher" class="org.mskcc.cbio.biogene.importer.internal.GeneDataFetcher">
+  <bean name="organismMetadataFetcher" class="org.mskcc.cbio.biogene.importer.internal.OrganismMetadataFetcher">
 	<constructor-arg index="0" ref="config"/>
-	<constructor-arg index="1" ref="ftpClientFactory"/>
-	<constructor-arg index="2"><value>${gene.data.dest.directory}</value></constructor-arg>
   </bean>
 
-  <bean name="geneDataASN2XMLConverter" class="org.mskcc.cbio.biogene.importer.internal.GeneDataASN2XMLConverter">
-	<constructor-arg index="0" ref="config"/>
-	<constructor-arg index="1" value="${ncbi.gene2xml.bin}"/>
-	<constructor-arg index="2"><value>${gene.data.dest.directory}</value></constructor-arg>
+  <bean id="organismGeneIdReader" class="org.springframework.batch.item.adapter.ItemReaderAdapter">
+    <property name="targetObject" ref="organismGeneIdFetcher"/>
+    <property name="targetMethod" value="getOrganismGeneIds"/>
+    <property name="arguments" value="#{@organismMetadataQueue.poll()}"/>
   </bean>
 
-  <bean id="ftpClientFactory" class="org.mskcc.cbio.biogene.importer.internal.AdvancedFtpSessionFactory">
-	<property name="host" value="${ncbi.ftp.host}"/>
-	<property name="port" value="22"/>
-	<property name="username" value="${ncbi.ftp.user}"/>
-	<property name="password" value="${ncbi.ftp.password}"/>
-	<property name="clientMode" value="0"/>
-	<property name="fileType" value="2"/>
-	<property name="bufferSize" value="100000"/>
+  <bean name="organismGeneIdFetcher" class="org.mskcc.cbio.biogene.importer.internal.OrganismGeneIdFetcher">
+	<constructor-arg index="0" ref="eutils"/>
   </bean>
 
-  <bean id="config" class="org.mskcc.cbio.biogene.importer.config.internal.GDataImpl">
-	<constructor-arg index="0"><value>${google.id}</value></constructor-arg>
-	<constructor-arg index="1"><value>${google.pw}</value></constructor-arg>
-	<constructor-arg index="2" ref="spreadsheetService"/>
-	<constructor-arg index="3"><value>${biogene.spreadsheet}</value></constructor-arg>
-	<constructor-arg index="4"><value>${biogene.ncbi_files_worksheet}</value></constructor-arg>
-  </bean>
-
-  <bean id="spreadsheetService" class="com.google.gdata.client.spreadsheet.SpreadsheetService">
-	<constructor-arg index="0"><value>${biogene.spreadsheet_service_appname}</value></constructor-arg>
-  </bean>
-
-  <bean name="geneFileMetadata" class="java.util.HashMap">
-	<constructor-arg index="0" type="java.util.Map">
-	  <map key-type="org.mskcc.cbio.biogene.importer.model.GeneFileMetadata" value-type="org.mskcc.cbio.biogene.importer.model.GeneFileMetadata"/>
+  <bean name="organismMetadataQueue" class="java.util.concurrent.LinkedBlockingQueue">
+	<constructor-arg>
+	  <value>org.mskcc.cbio.biogene.model.OrganismMetadata</value>
 	</constructor-arg>
   </bean>
 

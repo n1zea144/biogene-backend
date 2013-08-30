@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:batch="http://www.springframework.org/schema/batch"
+       xsi:schemaLocation="http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch-2.1.xsd
+						   http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+						   http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd">
+
+    <context:property-placeholder location="classpath:biogene.properties"/>
+	<context:component-scan base-package="org.mskcc.cbio.biogene.internal" />
+
+	<bean id="config" class="org.mskcc.cbio.biogene.config.internal.GDataImpl">
+	  <constructor-arg index="0"><value>${google.id}</value></constructor-arg>
+	  <constructor-arg index="1"><value>${google.pw}</value></constructor-arg>
+	  <constructor-arg index="2" ref="spreadsheetService"/>
+	  <constructor-arg index="3"><value>${biogene.spreadsheet}</value></constructor-arg>
+	  <constructor-arg index="4"><value>${biogene.organisms_worksheet}</value></constructor-arg>
+	  <constructor-arg index="5"><value>${biogene.search_terms_worksheet}</value></constructor-arg>
+	</bean>
+
+	<bean id="spreadsheetService" class="com.google.gdata.client.spreadsheet.SpreadsheetService">
+	  <constructor-arg index="0"><value>${biogene.spreadsheet_service_appname}</value></constructor-arg>
+	</bean>
+
+	<bean id="eutils" class="org.mskcc.cbio.biogene.eutils.internal.EUtilsImpl">
+	  <constructor-arg index="0" ref="config"/>
+	</bean>
+
+</beans>
