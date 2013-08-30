@@ -14,38 +14,19 @@
   <bean id="geneDataStep" class="org.springframework.batch.core.step.item.SimpleStepFactoryBean" abstract="true">
 	<property name="transactionManager" ref="transactionManager" />
 	<property name="jobRepository" ref="jobRepository" />
-	<!--<property name="commitInterval" value="${spring.batch.commit.interval}" />-->
+	<property name="commitInterval" value="1" />
   </bean>
 
   <batch:job id="geneDataImporterJob">
-	<batch:step id="organismMetadataFetchStep" parent="geneDataStep" next="organismGeneIdsFetchStep">
-	  <batch:tasklet ref="organismMetadataFetcher"/>
-	</batch:step>
-	<batch:step id="organismGeneIdsFetchStep" parent="geneDataStep">
+	<batch:step id="geneDataImporterStep" parent="geneDataStep">
 	  <batch:tasklet>
-		<batch:chunk reader="organismGeneIdReader" processor="organismGeneIdsProcessor"/>
+		<batch:chunk reader="organismMetadataFetcher" processor="organismGeneIdsFetcher" writer="organismGeneInfoFetcher"/>
 	  </batch:tasklet>
 	</batch:step>
   </batch:job>
 
   <bean name="organismMetadataFetcher" class="org.mskcc.cbio.biogene.importer.internal.OrganismMetadataFetcher">
 	<constructor-arg index="0" ref="config"/>
-  </bean>
-
-  <bean id="organismGeneIdReader" class="org.springframework.batch.item.adapter.ItemReaderAdapter">
-    <property name="targetObject" ref="organismGeneIdFetcher"/>
-    <property name="targetMethod" value="getOrganismGeneIds"/>
-    <property name="arguments" value="#{@organismMetadataQueue.poll()}"/>
-  </bean>
-
-  <bean name="organismGeneIdFetcher" class="org.mskcc.cbio.biogene.importer.internal.OrganismGeneIdFetcher">
-	<constructor-arg index="0" ref="eutils"/>
-  </bean>
-
-  <bean name="organismMetadataQueue" class="java.util.concurrent.LinkedBlockingQueue">
-	<constructor-arg>
-	  <value>org.mskcc.cbio.biogene.model.OrganismMetadata</value>
-	</constructor-arg>
   </bean>
 
 </beans>

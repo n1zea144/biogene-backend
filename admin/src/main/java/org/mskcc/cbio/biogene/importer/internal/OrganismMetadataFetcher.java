@@ -29,44 +29,29 @@ package org.mskcc.cbio.biogene.importer.internal;
 import org.mskcc.cbio.biogene.config.Config;
 import org.mskcc.cbio.biogene.model.OrganismMetadata;
 
+import org.springframework.stereotype.Component;
+import org.springframework.batch.item.ItemReader;
+
 import org.apache.commons.logging.*;
 
-import org.springframework.batch.repeat.RepeatStatus;
-import org.springframework.batch.core.StepContribution;
-import org.springframework.batch.core.step.tasklet.Tasklet;
-import org.springframework.batch.core.scope.context.ChunkContext;
+import java.util.LinkedList;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-
-import java.util.concurrent.LinkedBlockingQueue;
-
-public class OrganismMetadataFetcher implements Tasklet
+@Component("organismMetadataFetcher")
+public class OrganismMetadataFetcher implements ItemReader<OrganismMetadata>
 {
 	private static final Log LOG = LogFactory.getLog(OrganismMetadataFetcher.class);
 
-	@Autowired
-	@Qualifier("organismMetadataQueue")
-	private LinkedBlockingQueue<OrganismMetadata> organismMetadataQueue;
-
-	private Config config;
+	private LinkedList<OrganismMetadata> organismMetadata;
 
 	public OrganismMetadataFetcher(Config config)
 	{
-		this.config = config;
+		this.organismMetadata =
+			new LinkedList<OrganismMetadata>(config.getOrganismMetadata());
 	}
 
-	public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception
-    {
-		getOrganismMetadata();
-        return RepeatStatus.FINISHED;
-    }
-
-	private void getOrganismMetadata() throws Exception
+	@Override
+	public OrganismMetadata read() throws Exception
 	{
-		organismMetadataQueue.clear();
-		for (OrganismMetadata metadata : config.getOrganismMetadata()) {
-			organismMetadataQueue.put(metadata);
-		}
+		return organismMetadata.poll();
 	}
 }

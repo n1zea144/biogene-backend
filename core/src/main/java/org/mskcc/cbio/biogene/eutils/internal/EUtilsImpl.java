@@ -87,6 +87,12 @@ class EUtilsImpl implements EUtils {
 		return geneIds;
 	}
 
+	@Override
+	public void getGeneInfo(String geneId) throws Exception
+	{
+		System.out.println("gene info for: " + geneId);
+	}
+
 	private ESearchResultDocument.ESearchResult getESearchResult(String searchTerm, String searchDb, String retStart, String retMax) throws Exception
 	{
 		ESearchRequestDocument req = ESearchRequestDocument.Factory.newInstance();

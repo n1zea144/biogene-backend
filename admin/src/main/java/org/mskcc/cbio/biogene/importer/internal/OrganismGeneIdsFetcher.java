@@ -31,29 +31,24 @@ import org.mskcc.cbio.biogene.model.OrganismMetadata;
 
 import org.apache.commons.logging.*;
 
+import org.springframework.stereotype.Component;
+import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-import java.util.concurrent.LinkedBlockingQueue;
-
-public class OrganismGeneIdFetcher
+@Component("organismGeneIdsFetcher")
+public class OrganismGeneIdsFetcher implements ItemProcessor<OrganismMetadata, OrganismMetadata>
 {
-	private static final Log LOG = LogFactory.getLog(OrganismMetadataFetcher.class);
+	private static final Log LOG = LogFactory.getLog(OrganismGeneIdsFetcher.class);
 
 	@Autowired
-	@Qualifier("organismMetadataQueue")
-	private LinkedBlockingQueue<OrganismMetadata> organismMetadataQueue;
-
+	@Qualifier("eutils")
 	private EUtils eutils;
 
-	public OrganismGeneIdFetcher(EUtils eutils)
+	@Override
+	public OrganismMetadata process(OrganismMetadata organismMetadata) throws Exception
 	{
-		this.eutils = eutils;
-	}
-
-	public void getOrganismGeneIds(Object metadata) throws Exception
-	{
-		OrganismMetadata organismMetadata = (OrganismMetadata)metadata;
 		organismMetadata.setGeneIds(eutils.getGeneIds(organismMetadata));
+		return organismMetadata;
 	}
 }

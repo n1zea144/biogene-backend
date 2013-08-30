@@ -32,4 +32,5 @@ import java.util.List;
 public interface EUtils
 {
 	List<String> getGeneIds(OrganismMetadata organismMetadata) throws Exception;
+	void getGeneInfo(String geneId) throws Exception;
 }
