@@ -7,8 +7,8 @@
 							http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
 							http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
-  <import resource="classpath:coreApplicationContext.xml" />
-  <import resource="classpath:adminApplicationContext.xml" />
+  <import resource="classpath*:META-INF/spring/coreApplicationContext.xml" />
+  <import resource="classpath*:META-INF/spring/adminApplicationContext.xml" />
   <context:component-scan base-package="org.mskcc.cbio.biogene.importer.internal" />
 
   <bean id="geneDataStep" class="org.springframework.batch.core.step.item.SimpleStepFactoryBean" abstract="true">

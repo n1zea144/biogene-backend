@@ -16,8 +16,8 @@ public class BioGeneAdmin
     private static final String helpText = BioGeneAdmin.class.getSimpleName();
 
     private static final ClassPathXmlApplicationContext appContext = new ClassPathXmlApplicationContext(
-        "classpath:adminApplicationContext.xml",
-        "classpath:META-INF/spring/geneDataApplicationContext.xml"
+        "classpath*:META-INF/spring/adminApplicationContext.xml",
+        "classpath*:META-INF/spring/geneDataApplicationContext.xml"
     );
 
     @Transactional
