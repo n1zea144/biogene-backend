@@ -54,35 +54,6 @@
   <build>
 	<plugins>
 	  <plugin>
-		<groupId>org.jvnet.jaxb2.maven2</groupId>
-		<artifactId>maven-jaxb2-plugin</artifactId>
-		<version>0.8.3</version>
-		<executions>
-		  <execution>
-			<goals>
-			  <goal>generate</goal>
-			</goals>
-			<configuration>
-			  <verbose>true</verbose>
-			  <generatePackage>gov.nih.nlm.ncbi</generatePackage>
-			  <!--
-			  <forceRegenerate>true</forceRegenerate>
-			  <schemas>
-				<schema>
-				  <fileset>
-					<includes>
-					  <include>NCBI_Entrezgene.xsd</include>
-					</includes>
-				  </fileset>
-				  <url>http://www.ncbi.nlm.nih.gov/data_specs/schema/NCBI_Entrezgene.xsd</url>
-				</schema>
-			  </schemas>
-			  -->
-			</configuration>
-		  </execution>
-		</executions>
-	  </plugin>
-	  <plugin>
 		<groupId>org.apache.maven.plugins</groupId>
 		<artifactId>maven-resources-plugin</artifactId>
 		<executions>

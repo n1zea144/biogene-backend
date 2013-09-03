@@ -25,7 +25,7 @@
 	</batch:step>
   </batch:job>
 
-  <bean name="organismMetadataFetcher" class="org.mskcc.cbio.biogene.importer.internal.OrganismMetadataFetcher">
+  <bean name="organismMetadataFetcher" class="org.mskcc.cbio.biogene.importer.internal.OrganismMetadataFetcherImpl">
 	<constructor-arg index="0" ref="config"/>
   </bean>
 

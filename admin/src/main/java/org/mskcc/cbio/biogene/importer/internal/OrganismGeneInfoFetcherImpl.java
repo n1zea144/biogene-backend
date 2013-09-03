@@ -32,23 +32,31 @@ import org.mskcc.cbio.biogene.model.OrganismMetadata;
 import org.apache.commons.logging.*;
 
 import org.springframework.stereotype.Component;
-import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-@Component("organismGeneIdsFetcher")
-public class OrganismGeneIdsFetcher implements ItemProcessor<OrganismMetadata, OrganismMetadata>
+import java.util.List;
+
+@Component("organismGeneInfoFetcher")
+public class OrganismGeneInfoFetcherImpl implements ItemWriter<OrganismMetadata>
 {
-	private static final Log LOG = LogFactory.getLog(OrganismGeneIdsFetcher.class);
+	private static final Log LOG = LogFactory.getLog(OrganismGeneInfoFetcherImpl.class);
 
 	@Autowired
 	@Qualifier("eutils")
 	private EUtils eutils;
 
 	@Override
-	public OrganismMetadata process(OrganismMetadata organismMetadata) throws Exception
+	public void write(List<? extends OrganismMetadata> items) throws Exception
 	{
-		organismMetadata.setGeneIds(eutils.getGeneIds(organismMetadata));
-		return organismMetadata;
+		for (OrganismMetadata organismMetadata : items) {
+			for (String geneId : organismMetadata.getGeneIds()) {
+				if (LOG.isInfoEnabled()) {
+					LOG.info("Getting gene info for: " + geneId);
+				}
+				eutils.getGeneInfo(geneId);
+			}
+		}
 	}
 }

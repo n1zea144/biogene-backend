@@ -26,34 +26,35 @@
  **/
 package org.mskcc.cbio.biogene.importer.internal;
 
-import org.mskcc.cbio.biogene.eutils.EUtils;
+import org.mskcc.cbio.biogene.config.Config;
 import org.mskcc.cbio.biogene.model.OrganismMetadata;
+
+import org.springframework.stereotype.Component;
+import org.springframework.batch.item.ItemReader;
 
 import org.apache.commons.logging.*;
 
-import org.springframework.stereotype.Component;
-import org.springframework.batch.item.ItemWriter;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import java.util.LinkedList;
 
-import java.util.List;
-
-@Component("organismGeneInfoFetcher")
-public class OrganismGeneInfoFetcher implements ItemWriter<OrganismMetadata>
+@Component("organismMetadataFetcher")
+public class OrganismMetadataFetcherImpl implements ItemReader<OrganismMetadata>
 {
-	private static final Log LOG = LogFactory.getLog(OrganismGeneInfoFetcher.class);
+	private static final Log LOG = LogFactory.getLog(OrganismMetadataFetcherImpl.class);
 
-	@Autowired
-	@Qualifier("eutils")
-	private EUtils eutils;
+	private LinkedList<OrganismMetadata> organismMetadata;
+
+	public OrganismMetadataFetcherImpl(Config config)
+	{
+		this.organismMetadata =
+			new LinkedList<OrganismMetadata>(config.getOrganismMetadata());
+	}
 
 	@Override
-	public void write(List<? extends OrganismMetadata> items) throws Exception
+	public OrganismMetadata read() throws Exception
 	{
-		for (OrganismMetadata organismMetadata : items) {
-			for (String geneId : organismMetadata.getGeneIds()) {
-				eutils.getGeneInfo(geneId);
-			}
+		if (LOG.isInfoEnabled()) {
+			LOG.info("Polling organism metadata list...");
 		}
+		return organismMetadata.poll();
 	}
 }
