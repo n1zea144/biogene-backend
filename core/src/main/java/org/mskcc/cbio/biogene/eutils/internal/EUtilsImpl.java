@@ -46,14 +46,13 @@ class EUtilsImpl implements EUtils {
 	private static final String ORGANISM_TAG = "<ORGANISM>";
 	private static final Log LOG = LogFactory.getLog(EUtilsImpl.class);
 
-	private List<SearchTermMetadata> searchTermMetadatas;
 	private EUtilsServiceStub service;
+	private List<SearchTermMetadata> searchTermMetadatas;
 
 	public EUtilsImpl(Config config) throws Exception
 	{
 		this.service = new EUtilsServiceStub();
 		this.searchTermMetadatas = config.getSearchTermMetadata();
-
 	}
 
 	@Override
@@ -70,10 +69,16 @@ class EUtilsImpl implements EUtils {
 		do {
 			ESearchResultDocument.ESearchResult res = getESearchResult(encodedSearchTerm,
 																	   searchTermMetadata.getSearchDb(),
-																	   retStart.toString(), searchTermMetadata.getRetMax());
+																	   retStart.toString(), searchTermMetadata.getRetMax(),
+																	   searchTermMetadata.getUseHistory());
 
 			// note - res.getCount() returns total number of gene ids available for organism
-			if (totalNumberOfIds == null) totalNumberOfIds = Integer.valueOf(res.getCount());
+			if (totalNumberOfIds == null) {
+				totalNumberOfIds = Integer.valueOf(res.getCount());
+				if (LOG.isInfoEnabled()) {
+					LOG.info(totalNumberOfIds + " available for " + organismMetadata.getName());
+				}
+			}
 
 			if (res.getIdList().getIdArray().length == 0) break;
 
@@ -90,10 +95,18 @@ class EUtilsImpl implements EUtils {
 	@Override
 	public void getGeneInfo(String geneId) throws Exception
 	{
-		System.out.println("gene info for: " + geneId);
+		if (LOG.isInfoEnabled()) {
+			LOG.info("Getting gene information for: " + geneId);
+		}
 	}
 
-	private ESearchResultDocument.ESearchResult getESearchResult(String searchTerm, String searchDb, String retStart, String retMax) throws Exception
+	/**
+	 * @param restart Per NCBI docs - sequential index of the first UID in the retreived set to be shown in the output
+	 * @param retMax Per NCBI docs - total number of UIDs from the retreived set to be shown in the output
+	 * @param useHistory Per NCBI docs - when set to 'y', ESearch will post the UIDs resulting from search onto
+	 *                                   History server to be used directly in subsequent E-utility calls.
+	 */
+	private ESearchResultDocument.ESearchResult getESearchResult(String searchTerm, String searchDb, String retStart, String retMax, String useHistory) throws Exception
 	{
 		ESearchRequestDocument req = ESearchRequestDocument.Factory.newInstance();
 		ESearchRequestDocument.ESearchRequest esr = ESearchRequestDocument.ESearchRequest.Factory.newInstance();
@@ -101,6 +114,7 @@ class EUtilsImpl implements EUtils {
 		esr.setTerm(searchTerm);
 		esr.setRetStart(retStart);
 		esr.setRetMax(retMax);
+		esr.setUsehistory(useHistory);
 		req.setESearchRequest(esr);
 		return service.run_eSearch(req).getESearchResult();
 	}

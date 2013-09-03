@@ -34,20 +34,23 @@ public class SearchTermMetadata
 	private String retMax;
 	private String searchDb;
 	private String searchTerm;
+	private String useHistory;
 
     public SearchTermMetadata(String[] properties)
 	{
 
-		if (properties.length < 3) {
+		if (properties.length < 4) {
             throw new IllegalArgumentException("corrupt properties array passed to constructor");
 		}
 
 		this.searchTerm = properties[0].trim();
 		this.searchDb = properties[1].trim();
 		this.retMax = properties[2].trim();
+		this.useHistory = properties[3].trim();
 	}
 
 	public String getRetMax() { return retMax; }
 	public String getSearchDb() { return searchDb; }
 	public String getSearchTerm() { return searchTerm; }
+	public String getUseHistory() { return useHistory; }
 }
