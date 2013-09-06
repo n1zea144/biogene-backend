@@ -32,15 +32,14 @@ import org.mskcc.cbio.biogene.cache.CacheManager;
 
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 class CacheManagerImpl implements CacheManager {
 
+	@Autowired
+	@Qualifier("eutils")
 	private EUtils eutils;
-
-	public CacheManagerImpl(EUtils eutils)
-	{
-		this.eutils = eutils;
-	}
 
 	@Override
 	@Cacheable(value="geneInfoCache", key="#geneId") 

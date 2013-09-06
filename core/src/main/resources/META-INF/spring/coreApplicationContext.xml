@@ -38,9 +38,6 @@
 	  <constructor-arg index="0" ref="config"/>
 	</bean>
 
-	<bean id="biogeneCacheManager" class="org.mskcc.cbio.biogene.cache.internal.CacheManagerImpl">
-	  <constructor-arg index="0" ref="eutils"/>
-	</bean>
-
+	<bean id="biogeneCacheManager" class="org.mskcc.cbio.biogene.cache.internal.CacheManagerImpl"/>
         
 </beans>
