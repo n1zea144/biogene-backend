@@ -26,15 +26,14 @@
  **/
 package org.mskcc.cbio.biogene.eutils.internal;
 
+import org.mskcc.cbio.biogene.model.*;
+import org.mskcc.cbio.biogene.schema.*;
 import org.mskcc.cbio.biogene.config.Config;
 import org.mskcc.cbio.biogene.eutils.EUtils;
-import org.mskcc.cbio.biogene.model.*;
 
 import gov.nih.nlm.ncbi.*;
 import gov.nih.nlm.ncbi.www.soap.eutils.esearch.*;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import gov.nih.nlm.ncbi.www.soap.eutils.efetch_gene.*;
 
 import java.util.List;
 import java.util.Arrays;
@@ -43,15 +42,18 @@ import java.net.URLEncoder;
 
 class EUtilsImpl implements EUtils {
 
+	private static final String MIM_DB = "MIM";
+	private static final String LIST_DELIMITER = ":";
 	private static final String ORGANISM_TAG = "<ORGANISM>";
-	private static final Log LOG = LogFactory.getLog(EUtilsImpl.class);
 
-	private EUtilsServiceStub service;
+	private EUtilsServiceStub eUtilsService;
+	private EFetchGeneServiceStub eFetchGeneService;
 	private List<SearchTermMetadata> searchTermMetadatas;
 
 	public EUtilsImpl(Config config) throws Exception
 	{
-		this.service = new EUtilsServiceStub();
+		this.eUtilsService = new EUtilsServiceStub();
+		this.eFetchGeneService = new EFetchGeneServiceStub();
 		this.searchTermMetadatas = config.getSearchTermMetadata();
 	}
 
@@ -75,9 +77,6 @@ class EUtilsImpl implements EUtils {
 			// note - res.getCount() returns total number of gene ids available for organism
 			if (totalNumberOfIds == null) {
 				totalNumberOfIds = Integer.valueOf(res.getCount());
-				if (LOG.isInfoEnabled()) {
-					LOG.info(totalNumberOfIds + " available for " + organismMetadata.getName());
-				}
 			}
 
 			if (res.getIdList().getIdArray().length == 0) break;
@@ -93,15 +92,30 @@ class EUtilsImpl implements EUtils {
 	}
 
 	@Override
-	public void getGeneInfo(String geneId) throws Exception
+	public GeneInfo getGeneInfo(String geneId) throws Exception
 	{
-		if (LOG.isInfoEnabled()) {
-			LOG.info("Getting gene information for: " + geneId);
+		EntrezgeneDocument.Entrezgene[] entrezGenes = getEFetchResult(geneId).getEntrezgeneSet().getEntrezgeneArray();
+
+		if (entrezGenes.length == 1) {
+			GeneInfo geneInfo = newGeneInfo(entrezGenes[0]);
+			geneInfo.setGeneId(geneId);
+			return geneInfo;
 		}
+
+		return null;
+	}
+
+	private EFetchResultDocument.EFetchResult getEFetchResult(String geneId) throws Exception
+	{
+		EFetchRequestDocument req = EFetchRequestDocument.Factory.newInstance();
+		EFetchRequestDocument.EFetchRequest efr = EFetchRequestDocument.EFetchRequest.Factory.newInstance();
+		efr.setId(geneId);
+		req.setEFetchRequest(efr);
+		return eFetchGeneService.run_eFetch(req).getEFetchResult();
 	}
 
 	/**
-	 * @param restart Per NCBI docs - sequential index of the first UID in the retreived set to be shown in the output
+	 * @param retStart Per NCBI docs - sequential index of the first UID in the retreived set to be shown in the output
 	 * @param retMax Per NCBI docs - total number of UIDs from the retreived set to be shown in the output
 	 * @param useHistory Per NCBI docs - when set to 'y', ESearch will post the UIDs resulting from search onto
 	 *                                   History server to be used directly in subsequent E-utility calls.
@@ -116,7 +130,7 @@ class EUtilsImpl implements EUtils {
 		esr.setRetMax(retMax);
 		esr.setUsehistory(useHistory);
 		req.setESearchRequest(esr);
-		return service.run_eSearch(req).getESearchResult();
+		return eUtilsService.run_eSearch(req).getESearchResult();
 	}
 
 	private String getEncodedSearchTerm(String searchTerm, OrganismMetadata organismMetadata) throws Exception
@@ -124,5 +138,156 @@ class EUtilsImpl implements EUtils {
 		String organism = URLEncoder.encode(organismMetadata.getName(), "UTF-8");
 		searchTerm = searchTerm.replace(ORGANISM_TAG, organism);
 		return searchTerm;
+	}
+
+	private GeneInfo newGeneInfo(EntrezgeneDocument.Entrezgene entrezGene)
+	{
+		GeneInfo geneInfo = new GeneInfo();
+
+        geneInfo.setGeneSummary(entrezGene.getEntrezgeneSummary());
+		geneInfo.setGeneOrganism(getGeneOrganism(entrezGene));
+		geneInfo.setGeneChromosome(getGeneChromosome(entrezGene));
+		geneInfo.setGeneSymbol(getGeneSymbol(entrezGene));
+		geneInfo.setGeneTag(getGeneTag(entrezGene));
+		geneInfo.setGeneLocation(getGeneLocation(entrezGene));
+		geneInfo.setGeneDescription(getGeneDescription(entrezGene));
+		geneInfo.setGeneAliases(getGeneAliases(entrezGene));
+		geneInfo.setGeneMim(getGeneMimRef(entrezGene));
+		geneInfo.setGeneDesignations(getGeneDesignations(entrezGene));
+		geneInfo.getGeneRif().addAll(getGeneRIFs(entrezGene));
+
+		return geneInfo;
+	}
+
+	private String getGeneOrganism(EntrezgeneDocument.Entrezgene entrezGene)
+	{
+		try {
+			return entrezGene.getEntrezgeneSource().getBioSource().getBioSourceOrg().getOrgRef().getOrgRefTaxname();
+		}
+		catch(NullPointerException e) {
+			return null;
+		}
+	}
+
+	private String getGeneChromosome(EntrezgeneDocument.Entrezgene entrezGene)
+	{
+		try {
+			gov.nih.nlm.ncbi.www.soap.eutils.efetch_gene.SubSourceDocument.SubSource[] subSources = 
+				entrezGene.getEntrezgeneSource().getBioSource().getBioSourceSubtype().getSubSourceArray();
+			return (subSources.length > 0) ? subSources[0].getSubSourceName() : null;
+		}
+		catch (NullPointerException e) {
+			return null;
+		}
+	}
+
+	private String getGeneSymbol(EntrezgeneDocument.Entrezgene entrezGene)
+	{
+		try {
+			return entrezGene.getEntrezgeneGene().getGeneRef().getGeneRefLocus();
+		}
+		catch (NullPointerException e) {
+			return null;
+		}
+	}
+
+	private String getGeneTag(EntrezgeneDocument.Entrezgene entrezGene)
+	{
+		try {
+			return entrezGene.getEntrezgeneGene().getGeneRef().getGeneRefLocusTag();
+		}
+		catch (NullPointerException e) {
+			return null;
+		}
+	}
+
+	private String getGeneLocation(EntrezgeneDocument.Entrezgene entrezGene)
+	{
+		try {
+			return entrezGene.getEntrezgeneGene().getGeneRef().getGeneRefMaploc();
+		}
+		catch (NullPointerException e) {
+			return null;
+		}
+	}
+
+	private String getGeneDescription(EntrezgeneDocument.Entrezgene entrezGene)
+	{
+		try {
+			return entrezGene.getEntrezgeneGene().getGeneRef().getGeneRefDesc();
+		}
+		catch (NullPointerException e) {
+			return null;
+		}
+	}
+
+	private String getGeneAliases(EntrezgeneDocument.Entrezgene entrezGene)
+	{
+		try {
+			return getArrayAsString(entrezGene.getEntrezgeneGene().getGeneRef().getGeneRefSyn().getGeneRefSynEArray());
+		}
+		catch (NullPointerException e) {
+			return null;
+		}
+	}
+
+	private String getGeneMimRef(EntrezgeneDocument.Entrezgene entrezGene)
+	{
+		try {
+			return getRefDb(MIM_DB, entrezGene);
+		}
+		catch (NullPointerException e) {
+			return null;
+		}
+	}
+
+	private String getGeneDesignations(EntrezgeneDocument.Entrezgene entrezGene)
+	{
+		try {
+			return getArrayAsString(entrezGene.getEntrezgeneProt().getProtRef().getProtRefName().getProtRefNameEArray());
+		}
+		catch (NullPointerException e) {
+			return null;
+		}
+	}
+
+	private List<GeneRIF> getGeneRIFs(EntrezgeneDocument.Entrezgene entrezGene)
+	{
+		List<GeneRIF> rifs = new ArrayList<GeneRIF>();
+		if (entrezGene.isSetEntrezgeneComments()) {
+			for (GeneCommentaryDocument.GeneCommentary commentary : entrezGene.getEntrezgeneComments().getGeneCommentaryArray()) {
+                if (commentary.getGeneCommentaryType().getValue() == GeneCommentaryDocument.GeneCommentary.GeneCommentaryType.Value.GENERIF) {
+					GeneRIF rif = new GeneRIF();
+                    rif.setRif(commentary.getGeneCommentaryText());
+					if (commentary.getGeneCommentaryRefs() != null) {
+						PubDocument.Pub[] pubs = commentary.getGeneCommentaryRefs().getPubArray();
+						if (pubs.length > 0) {
+							rif.setPubmedId(pubs[0].getPubPmid().getPubMedId().intValue());
+							rifs.add(rif);
+						}
+					}
+                }
+			}
+		}
+		return rifs;
+	}
+
+	private String getRefDb(String refDb, EntrezgeneDocument.Entrezgene entrezGene)
+	{
+		for (DbtagDocument.Dbtag tag : entrezGene.getEntrezgeneGene().getGeneRef().getGeneRefDb().getDbtagArray()) {
+            if (tag.getDbtagDb().equals(refDb)) {
+			    return tag.getDbtagTag().getObjectId().getObjectIdId().toString();
+            }
+		}
+		return null;
+	}
+
+	private String getArrayAsString(String[] list)
+	{
+		String items = "";
+		for (String item : list) {
+			items += item + LIST_DELIMITER;
+		}
+		return (items.isEmpty()) ? null : items.substring(0, items.length()-1);
 	}
 }

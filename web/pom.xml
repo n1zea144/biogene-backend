@@ -22,6 +22,11 @@
   <url>http://maven.apache.org</url>
 
   <dependencies>
+	<dependency>
+	  <groupId>${project.groupId}</groupId>
+	  <artifactId>core</artifactId>
+	  <version>${project.version}</version>
+	</dependency>
     <dependency>
       <groupId>org.apache.directory.studio</groupId>
       <artifactId>org.apache.commons.io</artifactId>
@@ -58,21 +63,6 @@
   <build>
     <finalName>biogene</finalName>
 	<plugins>
-	  <plugin>
-		<groupId>org.jvnet.jaxb2.maven2</groupId>
-		<artifactId>maven-jaxb2-plugin</artifactId>
-		<version>0.8.3</version>
-		<configuration>
-		  <generatePackage>org.mskcc.cbio.biogene.schema</generatePackage>
-		</configuration>
-		<executions>
-		  <execution>
-			<goals>
-			  <goal>generate</goal>
-			</goals>
-		  </execution>
-		</executions>
-	  </plugin>
 	  <plugin>            
 		<groupId>org.apache.maven.plugins</groupId>
 		<artifactId>maven-war-plugin</artifactId>

@@ -24,34 +24,12 @@
  ** along with this library; if not, write to the Free Software Foundation,
  ** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  **/
-package org.mskcc.cbio.biogene.importer.internal;
+package org.mskcc.cbio.biogene.cache;
 
-import org.mskcc.cbio.biogene.eutils.EUtils;
-import org.mskcc.cbio.biogene.model.OrganismMetadata;
+import org.mskcc.cbio.biogene.schema.*;
 
-import org.apache.commons.logging.*;
-
-import org.springframework.stereotype.Component;
-import org.springframework.batch.item.ItemProcessor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-
-@Component("organismGeneIdsFetcher")
-public class OrganismGeneIdsFetcherImpl implements ItemProcessor<OrganismMetadata, OrganismMetadata>
+public interface CacheManager
 {
-	private static final Log LOG = LogFactory.getLog(OrganismGeneIdsFetcherImpl.class);
-
-	@Autowired
-	@Qualifier("eutils")
-	private EUtils eutils;
-
-	@Override
-	public OrganismMetadata process(OrganismMetadata organismMetadata) throws Exception
-	{
-		organismMetadata.setGeneIds(eutils.getGeneIds(organismMetadata));
-		if (LOG.isInfoEnabled()) {
-			LOG.info("Found " + organismMetadata.getGeneIds().size() + " gene ids for:" + organismMetadata.getName());
-		}
-		return organismMetadata;
-	}
+	GeneInfo getGeneInfo(String geneId) throws Exception;
+	void removeGeneInfo(String geneId) throws Exception;
 }

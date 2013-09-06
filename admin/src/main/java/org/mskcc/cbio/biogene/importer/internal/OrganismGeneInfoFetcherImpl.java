@@ -26,7 +26,8 @@
  **/
 package org.mskcc.cbio.biogene.importer.internal;
 
-import org.mskcc.cbio.biogene.eutils.EUtils;
+import org.mskcc.cbio.biogene.schema.*;
+import org.mskcc.cbio.biogene.cache.CacheManager;
 import org.mskcc.cbio.biogene.model.OrganismMetadata;
 
 import org.apache.commons.logging.*;
@@ -44,8 +45,8 @@ public class OrganismGeneInfoFetcherImpl implements ItemWriter<OrganismMetadata>
 	private static final Log LOG = LogFactory.getLog(OrganismGeneInfoFetcherImpl.class);
 
 	@Autowired
-	@Qualifier("eutils")
-	private EUtils eutils;
+	@Qualifier("biogeneCacheManager")
+	private CacheManager cacheManager;
 
 	@Override
 	public void write(List<? extends OrganismMetadata> items) throws Exception
@@ -53,9 +54,10 @@ public class OrganismGeneInfoFetcherImpl implements ItemWriter<OrganismMetadata>
 		for (OrganismMetadata organismMetadata : items) {
 			for (String geneId : organismMetadata.getGeneIds()) {
 				if (LOG.isInfoEnabled()) {
-					LOG.info("Getting gene info for: " + geneId);
+					LOG.info("Updating gene info for: " + geneId);
 				}
-				eutils.getGeneInfo(geneId);
+				cacheManager.removeGeneInfo(geneId);
+				cacheManager.getGeneInfo(geneId);
 			}
 		}
 	}

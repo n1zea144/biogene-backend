@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://ehcache.org/ehcache.xsd" updateCheck="false" name="biogene-cache">
+
+     <!--
+	  | Please see http://ehcache.sourceforge.net/documentation/configuration.html for
+	  | detailed information on how to configurigure caches in this file
+	  +-->
+    <diskStore path="${cache.path}/biogene-cache"/>
+
+    <defaultCache
+        eternal="true"
+        maxElementsInMemory="500000"
+        overflowToDisk="true"
+		diskPersistent="true"
+		timeToIdleSeconds="0"
+		timeToLiveSeconds="0"
+        />
+
+    <cache name="geneInfoCache"
+        eternal="true"
+        maxElementsInMemory="500000"
+        overflowToDisk="true"
+		diskPersistent="true"
+		timeToIdleSeconds="0"
+		timeToLiveSeconds="0"
+        />
+</ehcache>

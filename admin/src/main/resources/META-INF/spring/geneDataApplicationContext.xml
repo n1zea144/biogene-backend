@@ -3,12 +3,16 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		xmlns:batch="http://www.springframework.org/schema/batch"
 		xmlns:context="http://www.springframework.org/schema/context"
+		xmlns:cache="http://www.springframework.org/schema/cache"
         xsi:schemaLocation="http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch-2.1.xsd
 							http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
-							http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+							http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+							http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd">
 
   <import resource="classpath*:META-INF/spring/coreApplicationContext.xml" />
   <import resource="classpath*:META-INF/spring/adminApplicationContext.xml" />
+
+  <cache:annotation-driven cache-manager="serviceCacheManager" />
   <context:component-scan base-package="org.mskcc.cbio.biogene.importer.internal" />
 
   <bean id="geneDataStep" class="org.springframework.batch.core.step.item.SimpleStepFactoryBean" abstract="true">

@@ -27,10 +27,12 @@
 package org.mskcc.cbio.biogene.eutils;
 
 import org.mskcc.cbio.biogene.model.*;
+import org.mskcc.cbio.biogene.schema.*;
+
 import java.util.List;
 
 public interface EUtils
 {
 	List<String> getGeneIds(OrganismMetadata organismMetadata) throws Exception;
-	void getGeneInfo(String geneId) throws Exception;
+	GeneInfo getGeneInfo(String geneId) throws Exception;
 }

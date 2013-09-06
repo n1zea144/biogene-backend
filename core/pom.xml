@@ -82,22 +82,54 @@
 		<artifactId>backport-util-concurrent-java12</artifactId>
 		<version>3.1</version>
 	  </dependency>	
+	  <dependency>
+		<groupId>net.sf.ehcache</groupId>
+		<artifactId>ehcache</artifactId>
+		<version>2.7.2</version>
+	  </dependency>
   </dependencies>
 
   <build>
 	<plugins>
+	  <plugin>
+		<groupId>org.jvnet.jaxb2.maven2</groupId>
+		<artifactId>maven-jaxb2-plugin</artifactId>
+		<version>0.8.3</version>
+		<configuration>
+		  <generatePackage>org.mskcc.cbio.biogene.schema</generatePackage>
+		</configuration>
+		<executions>
+		  <execution>
+			<goals>
+			  <goal>generate</goal>
+			</goals>
+		  </execution>
+		</executions>
+	  </plugin>
 	  <plugin>
 		<groupId>org.apache.axis2</groupId>
 		<artifactId>axis2-wsdl2code-maven-plugin</artifactId>
 		<version>1.4</version>
 		<executions>
 		  <execution>
+			<id>eutils</id>
 			<goals>
 			  <goal>wsdl2code</goal>
 			</goals>
 			<configuration>
 			  <packageName>gov.nih.nlm.ncbi</packageName>
 			  <wsdlFile>http://eutils.ncbi.nlm.nih.gov/soap/v2.0/eutils.wsdl</wsdlFile>
+			  <databindingName>xmlbeans</databindingName>
+			</configuration>
+		  </execution>
+		  <execution>
+			<id>efetch_gene</id>
+			<goals>
+			  <goal>wsdl2code</goal>
+			</goals>
+			<configuration>
+			  <packageName>gov.nih.nlm.ncbi</packageName>
+			  <wsdlFile>http://eutils.ncbi.nlm.nih.gov/soap/v2.0/efetch_gene.wsdl</wsdlFile>
 			  <databindingName>xmlbeans</databindingName>
 			</configuration>
 		  </execution>
@@ -122,7 +154,7 @@
 					<include>**/*.properties</include>
 				  </includes>
 				  <excludes>
-					<exclude>**/portal.properties.*</exclude>
+					<exclude>**/biogene.properties.*</exclude>
 					<exclude>**/log4j.properties.*</exclude>
 					<exclude>**/*.EXAMPLE</exclude>
 				  </excludes>
@@ -147,6 +179,25 @@
 				</resource>
 			  </resources>
             </configuration>
+		  </execution>
+		  <execution>
+            <id>filter-resources-biogene.properties</id>
+            <phase>process-sources</phase>
+            <goals>
+			  <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+			  <outputDirectory>${project.build.directory}/classes</outputDirectory>
+			  <filters>
+				<filter>${project.parent.basedir}/src/main/resources/biogene.properties</filter>
+			  </filters>
+			  <resources>
+				<resource>
+				  <directory>src/main/resources</directory>
+				  <filtering>true</filtering>
+				</resource>
+			  </resources>
+			</configuration>
 		  </execution>
 		</executions>
 	  </plugin>

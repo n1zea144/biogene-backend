@@ -24,34 +24,34 @@
  ** along with this library; if not, write to the Free Software Foundation,
  ** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  **/
-package org.mskcc.cbio.biogene.importer.internal;
+package org.mskcc.cbio.biogene.cache.internal;
 
+import org.mskcc.cbio.biogene.schema.*;
 import org.mskcc.cbio.biogene.eutils.EUtils;
-import org.mskcc.cbio.biogene.model.OrganismMetadata;
+import org.mskcc.cbio.biogene.cache.CacheManager;
 
-import org.apache.commons.logging.*;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
 
-import org.springframework.stereotype.Component;
-import org.springframework.batch.item.ItemProcessor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+class CacheManagerImpl implements CacheManager {
 
-@Component("organismGeneIdsFetcher")
-public class OrganismGeneIdsFetcherImpl implements ItemProcessor<OrganismMetadata, OrganismMetadata>
-{
-	private static final Log LOG = LogFactory.getLog(OrganismGeneIdsFetcherImpl.class);
-
-	@Autowired
-	@Qualifier("eutils")
 	private EUtils eutils;
 
-	@Override
-	public OrganismMetadata process(OrganismMetadata organismMetadata) throws Exception
+	public CacheManagerImpl(EUtils eutils)
 	{
-		organismMetadata.setGeneIds(eutils.getGeneIds(organismMetadata));
-		if (LOG.isInfoEnabled()) {
-			LOG.info("Found " + organismMetadata.getGeneIds().size() + " gene ids for:" + organismMetadata.getName());
-		}
-		return organismMetadata;
+		this.eutils = eutils;
+	}
+
+	@Override
+	@Cacheable(value="geneInfoCache", key="#geneId") 
+	public GeneInfo getGeneInfo(String geneId) throws Exception
+	{
+		return eutils.getGeneInfo(geneId);
+	}
+
+	@Override
+	@CacheEvict(value="geneInfoCache", key="#geneId")
+	public void removeGeneInfo(String geneId) throws Exception
+	{
 	}
 }
