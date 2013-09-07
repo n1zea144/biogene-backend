@@ -33,19 +33,22 @@ public class OrganismMetadata
 {
 	// bean properties
 	private String name;
+	private String uniProtMappingFilename;
 	private List<String> geneIds;
 
     public OrganismMetadata(String[] properties)
 	{
-		if (properties.length < 1) {
+		if (properties.length < 2) {
             throw new IllegalArgumentException("corrupt properties array passed to constructor");
 		}
 
 		this.name = properties[0].trim();
+		this.uniProtMappingFilename = properties[1].trim();
 		this.geneIds = new ArrayList<String>();
 	}
 
 	public String getName() { return name; }
+	public String getUniProtMappingFilename() { return uniProtMappingFilename; }
 	public void setGeneIds(List<String> geneIds) { this.geneIds = geneIds; }
 	public List<String> getGeneIds() { return geneIds; }
 }

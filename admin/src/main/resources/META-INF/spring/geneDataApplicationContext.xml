@@ -9,28 +9,71 @@
 							http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
 							http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd">
 
-  <import resource="classpath*:META-INF/spring/coreApplicationContext.xml" />
-  <import resource="classpath*:META-INF/spring/adminApplicationContext.xml" />
+  <import resource="classpath*:META-INF/spring/coreApplicationContext.xml"/>
+  <import resource="classpath*:META-INF/spring/adminApplicationContext.xml"/>
 
-  <cache:annotation-driven cache-manager="serviceCacheManager" />
-  <context:component-scan base-package="org.mskcc.cbio.biogene.importer.internal" />
+  <cache:annotation-driven cache-manager="serviceCacheManager"/>
+  <context:component-scan base-package="org.mskcc.cbio.biogene.importer.internal"/>
 
   <bean id="geneDataStep" class="org.springframework.batch.core.step.item.SimpleStepFactoryBean" abstract="true">
-	<property name="transactionManager" ref="transactionManager" />
-	<property name="jobRepository" ref="jobRepository" />
-	<property name="commitInterval" value="1" />
+	<property name="transactionManager" ref="transactionManager"/>
+	<property name="jobRepository" ref="jobRepository"/>
+	<property name="commitInterval" value="1"/>
   </bean>
 
   <batch:job id="geneDataImporterJob">
-	<batch:step id="geneDataImporterStep" parent="geneDataStep">
+	<batch:step id="geneDataImporterStep" parent="geneDataStep" next="uniProtMappingFileFetchingStep">
 	  <batch:tasklet>
 		<batch:chunk reader="organismMetadataFetcher" processor="organismGeneIdsFetcher" writer="organismGeneInfoFetcher"/>
+	  </batch:tasklet>
+	</batch:step>
+	<batch:step id="uniProtMappingFileFetchingStep" parent="geneDataStep" next="uniProtMappingAnnotationStep">
+	  <batch:tasklet ref="uniProtMappingFileFetcher"/>
+	</batch:step>
+	<batch:step id="uniProtMappingAnnotationStep" parent="geneDataStep">
+	  <batch:tasklet>
+		<batch:chunk reader="uniProtMappingReader" processor="uniProtMappingProcessor" writer="uniProtMappingWriter"/>
 	  </batch:tasklet>
 	</batch:step>
   </batch:job>
 
   <bean name="organismMetadataFetcher" class="org.mskcc.cbio.biogene.importer.internal.OrganismMetadataFetcherImpl">
 	<constructor-arg index="0" ref="config"/>
+  </bean>
+
+  <bean name="uniProtMappingFileFetcher" class="org.mskcc.cbio.biogene.importer.internal.UniProtMappingFileFetcherImpl">
+	<constructor-arg index="0" ref="config"/>
+	<constructor-arg index="1" ref="ftpClientFactory"/>
+	<constructor-arg index="2"><value>${downloads.directory}</value></constructor-arg>
+  </bean>
+
+  <bean id="ftpClientFactory" class="org.mskcc.cbio.biogene.importer.internal.AdvancedFtpSessionFactory">
+	<property name="host" value="ftp.uniprot.org"/>
+	<property name="port" value="22"/>
+	<property name="username" value="anonymous"/>
+	<property name="password" value="anonymous"/>
+	<property name="clientMode" value="0"/>
+	<property name="fileType" value="2"/>
+	<property name="bufferSize" value="100000"/>
+  </bean>
+
+  <bean name="uniProtMappingReader" class="org.springframework.batch.item.file.MultiResourceItemReader">
+	<property name="resources" value="file://${downloads.directory}/${uniprot.mapping.data.files}"/>
+	<property name="delegate">
+	  <bean class="org.springframework.batch.item.file.FlatFileItemReader">
+		<property name="lineMapper" ref="uniProtMappingLineMapper"/>
+		<property name="bufferedReaderFactory" ref="gzipBufferedReaderFactory"/>
+	  </bean>
+	</property>
+  </bean>
+
+  <bean name="uniProtMappingLineMapper" class="org.springframework.batch.item.file.mapping.DefaultLineMapper">
+	<property name="fieldSetMapper" ref="uniProtMappingFieldMapper"/>
+	<property name="lineTokenizer" ref="uniProtMappingLineTokenizer"/>
+  </bean>
+
+  <bean name="uniProtMappingLineTokenizer" class="org.springframework.batch.item.file.transform.DelimitedLineTokenizer">
+	<property name="delimiter" value="\u0009"/>
   </bean>
 
 </beans>

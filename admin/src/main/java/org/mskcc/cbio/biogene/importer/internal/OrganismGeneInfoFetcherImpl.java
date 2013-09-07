@@ -26,7 +26,6 @@
  **/
 package org.mskcc.cbio.biogene.importer.internal;
 
-import org.mskcc.cbio.biogene.schema.*;
 import org.mskcc.cbio.biogene.cache.CacheManager;
 import org.mskcc.cbio.biogene.model.OrganismMetadata;
 

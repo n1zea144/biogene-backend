@@ -10,7 +10,7 @@
 						   http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd">
 
     <context:property-placeholder location="classpath:biogene.properties"/>
-	<cache:annotation-driven cache-manager="serviceCacheManager" />
+	<cache:annotation-driven cache-manager="serviceCacheManager"/>
 
 	<bean id="serviceCacheManagerFactory" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
 	  <property name="configLocation" value="classpath:biogene-ehcache.xml"/>

@@ -31,5 +31,6 @@ import org.mskcc.cbio.biogene.schema.*;
 public interface CacheManager
 {
 	GeneInfo getGeneInfo(String geneId) throws Exception;
-	void removeGeneInfo(String geneId) throws Exception;
+	GeneInfo updateGeneInfo(String geneId, GeneInfo geneInfo);
+	void removeGeneInfo(String geneId);
 }
