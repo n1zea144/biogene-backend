@@ -30,6 +30,7 @@ import org.mskcc.cbio.biogene.schema.*;
 import org.mskcc.cbio.biogene.eutils.EUtils;
 import org.mskcc.cbio.biogene.cache.CacheManager;
 
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,8 +50,15 @@ class CacheManagerImpl implements CacheManager {
 	}
 
 	@Override
+	@CachePut(value="geneInfoCache", key="#geneId") 
+	public GeneInfo updateGeneInfo(String geneId, GeneInfo geneInfo)
+	{
+		return geneInfo;
+	}
+
+	@Override
 	@CacheEvict(value="geneInfoCache", key="#geneId")
-	public void removeGeneInfo(String geneId) throws Exception
+	public void removeGeneInfo(String geneId)
 	{
 	}
 }
