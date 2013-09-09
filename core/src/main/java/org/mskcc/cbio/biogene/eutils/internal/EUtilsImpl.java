@@ -44,7 +44,9 @@ class EUtilsImpl implements EUtils {
 
 	private static final String MIM_DB = "MIM";
 	private static final String LIST_DELIMITER = ":";
-	private static final String ORGANISM_TAG = "<ORGANISM>";
+	private static final String SYMBOL_TAG = "SYMBOL";
+	private static final String FREETEXT_TAG = "FREETEXT";
+	private static final String ORGANISM_TAG = "ORGANISM";
 
 	private EUtilsServiceStub eUtilsService;
 	private EFetchGeneServiceStub eFetchGeneService;
@@ -62,7 +64,8 @@ class EUtilsImpl implements EUtils {
 	{
 		ArrayList<String> geneIds = new ArrayList<String>();
 
-		SearchTermMetadata searchTermMetadata = searchTermMetadatas.get(SearchTermMetadata.ALL_GENE_IDS_INDEX);
+		SearchTermMetadata searchTermMetadata = SearchTermMetadata.getSearchTermMetadata(SearchTermMetadata.SEARCH_MODE.ALL_GENE_IDS,
+																						 searchTermMetadatas);
 		String encodedSearchTerm = getEncodedSearchTerm(searchTermMetadata.getSearchTerm(), organismMetadata);
 
 		Integer retStart = 0;
@@ -89,6 +92,27 @@ class EUtilsImpl implements EUtils {
 		while (totalNumberFetched < totalNumberOfIds);
 																   
 		return geneIds;
+	}
+
+	@Override
+	public List<String> getGeneIds(String query, OrganismMetadata organismMetadata) throws Exception
+	{
+		boolean multiTermQuery = SearchTermMetadata.isMultiTermQuery(query);
+		for (SearchTermMetadata.SEARCH_MODE searchMode : SearchTermMetadata.SEARCH_MODE.GENE_ID_FREE_TEXT_SEARCH) {
+			if (skipSearchMode(searchMode, multiTermQuery)) continue;
+			SearchTermMetadata searchTermMetadata = SearchTermMetadata.getSearchTermMetadata(searchMode,
+																							 searchTermMetadatas);
+			String encodedSearchTerm = getEncodedSearchTerm(searchMode, query,
+															searchTermMetadata.getSearchTerm(), organismMetadata);
+			ESearchResultDocument.ESearchResult res = getESearchResult(encodedSearchTerm,
+																	   searchTermMetadata.getSearchDb(),
+																	   "0", searchTermMetadata.getRetMax(),
+																	   searchTermMetadata.getUseHistory());
+			if (res.getIdList().getIdArray().length == 0) continue;
+			return Arrays.asList(res.getIdList().getIdArray());
+		}
+
+		return new ArrayList<String>();
 	}
 
 	@Override
@@ -133,11 +157,75 @@ class EUtilsImpl implements EUtils {
 		return eUtilsService.run_eSearch(req).getESearchResult();
 	}
 
+	private String getEncodedSearchTerm(SearchTermMetadata.SEARCH_MODE searchMode, String query,
+										String searchTerm, OrganismMetadata organismMetadata) throws Exception
+	{
+		String encodedQuery = URLEncoder.encode(query, "UTF-8");
+		if (SearchTermMetadata.isAdvancedQuery(encodedQuery)) {
+			return getEncodedAdvancedSearchTerm(encodedQuery, organismMetadata);
+		}
+
+		searchTerm = getEncodedSearchTerm(searchTerm, organismMetadata);
+		
+		switch (searchMode) {
+		case PREF:
+		case SYMBOL:
+		case FULL_NAME:
+		case SYMBOL_WILDCARD_RIGHT:
+		case SYMBOL_WILDCARD:
+			return searchTerm.replace(SYMBOL_TAG, encodedQuery);
+		case FREE_TEXT:
+		case FREE_TEXT_WILDCARD_RIGHT:
+		case FREE_TEXT_WILDCARD:
+			return searchTerm.replace(FREETEXT_TAG, encodedQuery);
+		case FREE_TEXT_OR:
+			String orQuery = "(";
+			String parts[] = query.split(" ");
+			int lc = 0;
+			for (String part : parts) {
+				orQuery += (++lc < parts.length) ? (part + "[All Fields] OR ") : (part + "[All Fields])");
+			}
+			String encodedOrQuery = URLEncoder.encode(orQuery, "UTF-8");
+			return searchTerm.replace(FREETEXT_TAG, encodedOrQuery);
+		default:
+			return "";
+		}
+	}
+
 	private String getEncodedSearchTerm(String searchTerm, OrganismMetadata organismMetadata) throws Exception
 	{
 		String organism = URLEncoder.encode(organismMetadata.getName(), "UTF-8");
 		searchTerm = searchTerm.replace(ORGANISM_TAG, organism);
 		return searchTerm;
+	}
+	
+	private String getEncodedAdvancedSearchTerm(String encodedQuery, OrganismMetadata organismMetadata) throws Exception
+	{
+		String searchTerm = SearchTermMetadata.getSearchTermMetadata(SearchTermMetadata.SEARCH_MODE.ADVANCED_SEARCH,
+																	 searchTermMetadatas).getSearchTerm();
+		searchTerm = searchTerm.replace(FREETEXT_TAG, encodedQuery);
+		return getEncodedSearchTerm(searchTerm, organismMetadata);
+	}
+
+	private boolean skipSearchMode(SearchTermMetadata.SEARCH_MODE searchMode, boolean multiTermQuery)
+	{
+		// if we have a single-term query, skip search on full gene name
+		if (!multiTermQuery && (searchMode == SearchTermMetadata.SEARCH_MODE.FULL_NAME ||
+								searchMode == SearchTermMetadata.SEARCH_MODE.FREE_TEXT_OR)) {
+			return true;
+		}
+		// if we have a multi-term query, skip wildcard searching on [pref] and [sym]
+		else if (multiTermQuery && (searchMode == SearchTermMetadata.SEARCH_MODE.PREF ||
+									searchMode == SearchTermMetadata.SEARCH_MODE.SYMBOL ||
+									searchMode == SearchTermMetadata.SEARCH_MODE.SYMBOL_WILDCARD_RIGHT || 
+									searchMode == SearchTermMetadata.SEARCH_MODE.SYMBOL_WILDCARD ||
+									searchMode == SearchTermMetadata.SEARCH_MODE.FREE_TEXT_WILDCARD_RIGHT ||
+									searchMode == SearchTermMetadata.SEARCH_MODE.FREE_TEXT_WILDCARD)) {
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 
 	private GeneInfo newGeneInfo(EntrezgeneDocument.Entrezgene entrezGene)

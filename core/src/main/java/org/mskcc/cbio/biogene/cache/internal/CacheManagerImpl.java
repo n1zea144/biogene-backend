@@ -26,6 +26,7 @@
  **/
 package org.mskcc.cbio.biogene.cache.internal;
 
+import org.mskcc.cbio.biogene.model.*;
 import org.mskcc.cbio.biogene.schema.*;
 import org.mskcc.cbio.biogene.eutils.EUtils;
 import org.mskcc.cbio.biogene.cache.CacheManager;
@@ -36,11 +37,20 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import java.util.List;
+
 class CacheManagerImpl implements CacheManager {
 
 	@Autowired
 	@Qualifier("eutils")
 	private EUtils eutils;
+
+	@Override
+	@Cacheable(value="geneIdCache") 
+	public List<String> getGeneIds(String query, OrganismMetadata organismMetadata) throws Exception
+	{
+		return eutils.getGeneIds(query, organismMetadata);
+	}
 
 	@Override
 	@Cacheable(value="geneInfoCache", key="#geneId") 

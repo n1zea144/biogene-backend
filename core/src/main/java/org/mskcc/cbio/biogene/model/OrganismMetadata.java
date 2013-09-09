@@ -51,4 +51,9 @@ public class OrganismMetadata
 	public String getUniProtMappingFilename() { return uniProtMappingFilename; }
 	public void setGeneIds(List<String> geneIds) { this.geneIds = geneIds; }
 	public List<String> getGeneIds() { return geneIds; }
+
+	public String toString()
+	{
+		return name;
+	}
 }

@@ -34,5 +34,6 @@ import java.util.List;
 public interface EUtils
 {
 	List<String> getGeneIds(OrganismMetadata organismMetadata) throws Exception;
+	List<String> getGeneIds(String query, OrganismMetadata organismMetadata) throws Exception;
 	GeneInfo getGeneInfo(String geneId) throws Exception;
 }

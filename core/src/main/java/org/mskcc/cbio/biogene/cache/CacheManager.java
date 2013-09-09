@@ -26,10 +26,14 @@
  **/
 package org.mskcc.cbio.biogene.cache;
 
+import org.mskcc.cbio.biogene.model.*;
 import org.mskcc.cbio.biogene.schema.*;
+
+import java.util.List;
 
 public interface CacheManager
 {
+	List<String> getGeneIds(String query, OrganismMetadata organismMetadata) throws Exception;
 	GeneInfo getGeneInfo(String geneId) throws Exception;
 	GeneInfo updateGeneInfo(String geneId, GeneInfo geneInfo);
 	void removeGeneInfo(String geneId);

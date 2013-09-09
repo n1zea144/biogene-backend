@@ -26,11 +26,43 @@
  **/
 package org.mskcc.cbio.biogene.model;
 
+import java.util.List;
+import java.util.Arrays;
+import java.util.Collections;
+
 public class SearchTermMetadata
 {
-	public static final int ALL_GENE_IDS_INDEX = 0;
+	public static enum SEARCH_MODE {
+		ALL_GENE_IDS("ALL_GENE_IDS"),
+		ADVANCED_SEARCH("ADVANCED_SEARCH"),
+		PREF("PREF"),
+		SYMBOL("SYMBOL"),
+		FULL_NAME("FULL_NAME"),
+		SYMBOL_WILDCARD_RIGHT("SYMBOL_WILDCARD_RIGHT"),
+		SYMBOL_WILDCARD("SYMBOL_WILDCARD"),
+		FREE_TEXT("FREE_TEXT"),
+		FREE_TEXT_WILDCARD_RIGHT("FREE_TEXT_WILDCARD_RIGHT"),
+		FREE_TEXT_WILDCARD("FREE_TEXT_WILDCARD"),
+		FREE_TEXT_OR("FREE_TEXT_OR");
+
+		// string ref for readable name
+		private String searchMode;
+
+		// constructor
+		SEARCH_MODE(String searchMode) { this.searchMode = searchMode; }
+
+		private static final SEARCH_MODE[] GENE_ID_FREE_TEXT_SEARCH_ORDER = { PREF, SYMBOL, FULL_NAME,
+																			  SYMBOL_WILDCARD_RIGHT, SYMBOL_WILDCARD,
+																			  FREE_TEXT, FREE_TEXT_WILDCARD_RIGHT,
+																			  FREE_TEXT_WILDCARD, FREE_TEXT_OR };
+		public static final List<SEARCH_MODE> GENE_ID_FREE_TEXT_SEARCH = Collections.unmodifiableList(Arrays.asList(GENE_ID_FREE_TEXT_SEARCH_ORDER));
+
+		// method to get enum readable name
+		public String toString() { return searchMode; }
+	}
 
 	// bean properties
+	private String mode;
 	private String retMax;
 	private String searchDb;
 	private String searchTerm;
@@ -38,17 +70,46 @@ public class SearchTermMetadata
 
     public SearchTermMetadata(String[] properties)
 	{
-
-		if (properties.length < 4) {
+		if (properties.length < 5) {
             throw new IllegalArgumentException("corrupt properties array passed to constructor");
 		}
 
-		this.searchTerm = properties[0].trim();
-		this.searchDb = properties[1].trim();
-		this.retMax = properties[2].trim();
-		this.useHistory = properties[3].trim();
+		this.mode = properties[0].trim();
+		this.searchTerm = properties[1].trim();
+		this.searchDb = properties[2].trim();
+		this.retMax = properties[3].trim();
+		this.useHistory = properties[4].trim();
 	}
 
+	public static SearchTermMetadata getSearchTermMetadata(SEARCH_MODE mode, List<SearchTermMetadata> searchTermMetadatas)
+	{
+		for (SearchTermMetadata searchTermMetadata : searchTermMetadatas) {
+			if (searchTermMetadata.getMode().equals(mode)) {
+				return searchTermMetadata;
+			}
+		}
+		return null;
+	}
+
+	public static boolean isMultiTermQuery(String query)
+	{
+		return (query.contains(" "));
+	}
+
+	public static boolean isAdvancedQuery(String query)
+	{
+		return (query.contains("[") ||
+				query.contains("]") ||
+				query.contains("*") ||
+				query.contains(" and ") ||
+				query.contains(" AND ") ||
+				query.contains(" or ") ||
+				query.contains(" OR ") ||
+				query.contains(" not ") ||
+				query.contains(" NOT "));
+	}
+
+	public String getMode() { return mode; }
 	public String getRetMax() { return retMax; }
 	public String getSearchDb() { return searchDb; }
 	public String getSearchTerm() { return searchTerm; }
