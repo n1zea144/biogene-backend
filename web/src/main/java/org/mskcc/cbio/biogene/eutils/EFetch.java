@@ -47,7 +47,7 @@ public class EFetch {
 
 	// some statics
     private static Logger log = Logger.getLogger(EFetch.class);
-	private static String URL = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=gene&retmode=xml&id=";
+	private static String URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=gene&retmode=xml&id=";
 
 	/**
 	 * Given an id, fetches gene info

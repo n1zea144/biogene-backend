@@ -52,7 +52,7 @@ public class PubMedAbstract {
 	// some statics
     private static Logger log = Logger.getLogger(PubMedAbstract.class);
 	//private static String URL = "http://www.ncbi.nlm.nih.gov/m/pubmed/";
-	private static String URL = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&retmode=xml&id=";
+	private static String URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&retmode=xml&id=";
 
 	/**
 	 * Given a PubMed Abstract ID, fetches the abstract, returns XML.
