@@ -169,9 +169,8 @@ public class EUtils {
 			IDs = new ArrayList<String>();
 			// iterate over all search modes, stopping when we have ids
 			for (ESearch.SEARCH_MODE mode : ESearch.SEARCH_MODE.values()) {
-				// if we have a single-term query, skip search on full gene name
-				if (!multitermQuery && (mode == ESearch.SEARCH_MODE.FULL_NAME ||
-						                mode == ESearch.SEARCH_MODE.FREE_TEXT_OR)) {
+				// if we have a single-term query, skip search on free text
+				if (!multitermQuery && mode == ESearch.SEARCH_MODE.FREE_TEXT_OR) {
 					continue;
 				}
 				// if we have a multi-term query, skip wildcard searching on [pref] and [sym]
