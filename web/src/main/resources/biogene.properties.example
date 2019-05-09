@@ -7,6 +7,6 @@ cache.path=
 uniprot.mapping.path=
 
 # following used by sencha app
-global.vars.abstract=
-global.vars.readme=
-global.vars.search=
+global.vars.abstract=URL_TO_WEBSERVICE/retrieve.do?cmd=getPubMedAbstract&id=
+global.vars.readme=http://cbio.mskcc.org/biogene-docs/readme.html
+global.vars.search=URL_TO_WEBSERVICE/retrieve.do

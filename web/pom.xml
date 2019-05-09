@@ -91,7 +91,7 @@
 
 	<!-- properties file used for filter our context file in resources -->
 	<filters>
-	  <filter>src/main/resources/META-INF/biogene.properties</filter>
+	  <filter>src/main/resources/biogene.properties</filter>
 	</filters>
 
 	<!-- we want to filter application context files with values from biogene.properties -->

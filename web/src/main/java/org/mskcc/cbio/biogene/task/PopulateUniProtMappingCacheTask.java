@@ -57,7 +57,7 @@ public class PopulateUniProtMappingCacheTask extends Thread {
 
 		// init uniProtMappingFile
 		Properties props = new Properties();
-		props.load(PopulateUniProtMappingCacheTask.class.getResourceAsStream("/META-INF/biogene.properties"));
+		props.load(PopulateUniProtMappingCacheTask.class.getResourceAsStream("/biogene.properties"));
 		uniProtMappingFile = FileUtils.getFile(props.getProperty("uniprot.mapping.path"));
     }
 
