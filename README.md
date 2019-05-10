@@ -29,7 +29,7 @@ biogene-backend should be compiled with a Java version prior to Java 8.  To comp
 mvn clean install
 ```
 
-After running this command you should find the following web archive: ***web/target/biogene.war***.  After this war file is deployed, you are ready to populate the required EhCaches.
+After running this command you should find the following web archive: ***web/target/biogene.war***.  After this war file is deployed, you are ready to populate the EhCache.
 
 ### EhCache
 
