@@ -9,8 +9,8 @@ Prior to compilation, the following configuration files to be created with conte
 biogene.properties should be copied from [biogene.properties.example](https://github.com/n1zea144/biogene-backend/blob/master/web/src/main/resources/biogene.properties.example) and placed in [biogene-backend/web/src/main/resources](https://github.com/n1zea144/biogene-backend/tree/master/web/src/main/resources).
 The following properties need to be set:
 
-* cache.path (root directory where the biogene-backend ehCache repository should be built)
-* uniprot.mapping.path (location where entrez to uniprot id mapping file can be found, this is used to populate the UniProt mapping cache -- see below)
+* cache.path (root directory where the biogene-backend ehCache repository should be built, see EhCache below)
+* uniprot.mapping.path (location where entrez to uniprot id mapping file can be found, see uniprot-cache below)
 * global.vars.abstract (used by sencha web interface), replace URL_TO_WEBSERVICE with proper url
 * global.vars.search (used by sencha web interface), replace URL_TO_WEBSERVICE with proper url
 
@@ -20,6 +20,16 @@ The following properties do not include a path, only a filename.  They should be
 
 * log4j.appender.a.rollingPolicy.FileNamePattern
 * log4j.appender.a.File
+
+### Compilation
+
+biogene-backend should be compiled with a Java version prior to Java 8.  To compile the code, run the following command in the root directory:
+
+```
+mvn clean install
+```
+
+After running this command you should find the following web archive: web/target/biogene.war.  After this war file is deployed, you are ready to populate the required EhCaches.
 
 ### EhCache
 
