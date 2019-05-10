@@ -14,7 +14,7 @@
          java.io.tmpdir - Default temp file path -->
     <!-- DO NOT MODIFY THE VALUE BELOW.  Rather, modify build.properties, and your change
          will be automatically propogated to here.-->
-    <diskStore path="${cache.path}/gene-ids-cache"/>
+    <diskStore path="${BIOGENE_EHCACHE_PATH}/gene-ids-cache"/>
 
     <!--Default Cache configuration. These will applied to caches programmatically created through
         the CacheManager.
