@@ -84,3 +84,16 @@ For example to query info for the TP53 human homolog:
 URL_TO_WEBSERVICE/retrieve.do?query=BRCA1&org=HUMAN
 ```
 
+This will return an XML document for BRCA1 gene information.  One of the very first elements should be a return_code:
+
+```
+<return_code>SUCCESS</return_code>
+```
+
+and somewhere within the document should be a gene_uniprot_mapping element:
+
+```
+<gene_uniprot_mapping>E7ETR2:E9PFC7:E9PFZ0:P38398:Q1RMC1</gene_uniprot_mapping
+```
+
+
