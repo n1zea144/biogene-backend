@@ -17,7 +17,7 @@ After running this command you should find the following web archive: ***web/tar
 The following system properties should be past to the JVM:
 
 * BIOGENE_EHCACHE_PATH (path on disk which designates where EhCache will be written)
-* BIOGENE_LOGFILE_PATH (path to web application log4j log file
+* BIOGENE_LOGFILE_PATH (path to web application log4j log file)
 
 
 ### EhCache
