@@ -19,11 +19,15 @@
     },
     "BIOGENE_EHCACHE_PATH": {
         "description":"ehcache path",
-        "value":"/tmp/ehcache"
+        "value":"/tmp/"
+    },
+    "BIOGENE_LOGFILE_PATH": {
+        "description":"log path",
+        "value":"/tmp/"
     },
     "SPRING_OPTS": {
-        "description":"set spring properties with e.g. -Dshow.civic=true (TODO: not all props work atm)",
-        "value":"-Dcache.path=/tmp/ehcache -Duniprot.mapping.path=/tmp/mappings/uniprot-id-mapping.txt"
+        "description":"set spring properties",
+        "value":""
     }
   },
   "buildpacks": [
