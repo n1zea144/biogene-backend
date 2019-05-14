@@ -21,10 +21,6 @@
         "description":"ehcache path",
         "value":"/tmp/"
     },
-    "BIOGENE_LOGFILE_PATH": {
-        "description":"log path",
-        "value":"/tmp/"
-    },
     "SPRING_OPTS": {
         "description":"set spring properties",
         "value":"",
