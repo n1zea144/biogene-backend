@@ -1,0 +1,35 @@
+{
+  "name": "biogene",
+  "description":"biogene",
+  "repository":"https://github.com/inodb/biogene-backend",
+  "keywords": [
+    "java",
+    "tomcat",
+    "cancer",
+    "genomics"
+  ],
+  "env": {
+    "JAVA_OPTS": {
+      "description":"options for jvm",
+      "value": "-Xmx300m -Xms300m -XX:+UseCompressedOops"
+    },
+    "MAVEN_CUSTOM_OPTS": {
+        "description":"set heroku profile for mvn",
+        "value":"-DskipTests"
+    },
+    "BIOGENE_EHCACHE_PATH": {
+        "description":"ehcache path",
+        "value":"/tmp/"
+    },
+    "SPRING_OPTS": {
+        "description":"set spring properties",
+        "value":"",
+        "required": false
+    }
+  },
+  "buildpacks": [
+    {
+      "url": "https://github.com/heroku/heroku-buildpack-java"
+    }
+  ]
+}

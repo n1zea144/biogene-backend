@@ -53,3 +53,6 @@ and somewhere within the document should be a gene_uniprot_mapping element:
 ```
 <gene_uniprot_mapping>E7ETR2:E9PFC7:E9PFZ0:P38398:Q1RMC1</gene_uniprot_mapping
 ```
+
+## Deployment
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
