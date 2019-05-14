@@ -27,7 +27,8 @@
     },
     "SPRING_OPTS": {
         "description":"set spring properties",
-        "value":""
+        "value":"",
+        "required": false
     }
   },
   "buildpacks": [
